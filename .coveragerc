@@ -1,0 +1,2 @@
+[run]
+omit = ./health_sensor_simulator/main.py,*/__init__.py
