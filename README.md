@@ -104,6 +104,9 @@ docker run -p 8000:8000 health-sensor-simulator
 
 ## Development & Testing
 
+### Documentation
+The full user and API guide is deployed to GitHub Pages, and can be found at this [link](https://github.com/marcoom/health-sensor-simulator/settings/pages).
+
 ### Running Tests
 ```bash
 # Run all tests
