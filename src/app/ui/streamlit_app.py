@@ -15,6 +15,19 @@ from src.app.ui.helpers import create_slider
 from src.app.ui.visualization import create_radial_scatter_plot
 from src.app.constants import UI_REFRESH_INTERVAL_SECONDS
 
+
+@st.cache_data
+def get_dummy_dataset():
+    """Generate and cache the dummy dataset for background visualization.
+    
+    This dataset provides context points showing the normal health parameter ranges
+    and is cached to improve performance since it doesn't need to change frequently.
+    
+    Returns:
+        DataFrame: Cached dummy health dataset
+    """
+    return generate_dummy_data()
+
 # Initialize session state and data generator
 if 'data_generator' not in st.session_state:
     st.session_state.data_generator = HealthDataGenerator()
@@ -64,7 +77,7 @@ else:
     health_point = data_generator.get_current_health_point(health_values, dispersion)
 
 # Display visualization
-health_dataset = generate_dummy_data()
+health_dataset = get_dummy_dataset()
 visualization_figure = create_radial_scatter_plot(health_dataset, health_point)
 st.plotly_chart(visualization_figure, use_container_width=True)
 

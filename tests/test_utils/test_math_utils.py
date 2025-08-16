@@ -7,10 +7,8 @@ from unittest.mock import patch, MagicMock
 from src.app.utils.math_utils import (
     calculate_radial_distance,
     apply_variance_to_health_data,
-    create_artificial_center_points,
-    validate_health_parameter_ranges
+    create_artificial_center_points
 )
-from src.app.constants import HEALTH_PARAMS
 
 
 class TestCalculateRadialDistance:
@@ -173,75 +171,6 @@ class TestCreateArtificialCenterPoints:
         assert points1 == points2
 
 
-class TestValidateHealthParameterRanges:
-    """Test cases for validate_health_parameter_ranges function."""
-
-    def test_validate_health_parameter_ranges_valid_data(self):
-        """Test validation with valid health data."""
-        health_data = {
-            "heart_rate": 80.0,
-            "oxygen_saturation": 97.5,
-            "body_temperature": 36.7
-        }
-        
-        result = validate_health_parameter_ranges(health_data, HEALTH_PARAMS)
-        
-        assert result["heart_rate"] is True
-        assert result["oxygen_saturation"] is True
-        assert result["body_temperature"] is True
-
-    def test_validate_health_parameter_ranges_invalid_data(self):
-        """Test validation with invalid health data."""
-        health_data = {
-            "heart_rate": 200.0,  # Too high
-            "oxygen_saturation": 85.0,  # Too low
-            "body_temperature": 36.7  # Valid
-        }
-        
-        result = validate_health_parameter_ranges(health_data, HEALTH_PARAMS)
-        
-        assert result["heart_rate"] is False
-        assert result["oxygen_saturation"] is False
-        assert result["body_temperature"] is True
-
-    def test_validate_health_parameter_ranges_boundary_values(self):
-        """Test validation with boundary values."""
-        health_data = {
-            "heart_rate": 60.0,  # At min_rest
-            "oxygen_saturation": 100.0,  # At max_rest
-        }
-        
-        result = validate_health_parameter_ranges(health_data, HEALTH_PARAMS)
-        
-        assert result["heart_rate"] is True
-        assert result["oxygen_saturation"] is True
-
-    def test_validate_health_parameter_ranges_unknown_parameter(self):
-        """Test validation with unknown parameter."""
-        health_data = {
-            "unknown_param": 50.0,
-            "heart_rate": 80.0
-        }
-        
-        result = validate_health_parameter_ranges(health_data, HEALTH_PARAMS)
-        
-        assert result["unknown_param"] is False
-        assert result["heart_rate"] is True
-
-    def test_validate_health_parameter_ranges_empty_data(self):
-        """Test validation with empty health data."""
-        result = validate_health_parameter_ranges({}, HEALTH_PARAMS)
-        assert result == {}
-
-    def test_validate_health_parameter_ranges_missing_spec(self):
-        """Test validation when parameter spec is incomplete."""
-        health_data = {"test_param": 50.0}
-        incomplete_specs = {"test_param": {}}  # Missing min_rest, max_rest
-        
-        result = validate_health_parameter_ranges(health_data, incomplete_specs)
-        
-        # Should be valid when no limits are specified
-        assert result["test_param"] is True
 
 
 if __name__ == "__main__":

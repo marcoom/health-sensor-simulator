@@ -119,7 +119,7 @@ class TestCreateRadialScatterPlot:
         
         fig = create_radial_scatter_plot(df)
         
-        mock_create_points.assert_called_once_with(num_points=50)
+        mock_create_points.assert_called_once_with(num_points=500)
         assert isinstance(fig, go.Figure)
 
     def test_create_radial_scatter_plot_hover_data(self):

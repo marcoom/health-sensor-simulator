@@ -47,7 +47,7 @@ def create_radial_scatter_plot(
     # This addresses the "curse of dimensionality" visualization issue
     rng = np.random.default_rng(42)  # Fixed seed for reproducibility
     
-    center_points = create_artificial_center_points(num_points=50)
+    center_points = create_artificial_center_points(num_points=500)
     center_r = np.array([point[1] for point in center_points])
     center_theta = np.array([point[0] for point in center_points])
     center_x = center_r * np.cos(center_theta)
@@ -88,7 +88,7 @@ def create_radial_scatter_plot(
         y=all_y, 
         mode="markers", 
         name="Health Data",
-        marker=dict(size=6, color="#4A90E2", opacity=0.7),
+        marker=dict(size=6, color="#4A90E2", opacity=0.6),
         customdata=hover_data,
         text=["Health Reading"] * len(all_x),
         hovertemplate=hover_template
@@ -105,10 +105,10 @@ def create_radial_scatter_plot(
         mode="markers", 
         name="Perfect Health",
         marker=dict(
-            size=8, 
-            color="green", 
+            size=14, 
+            color="darkgreen", 
             symbol="cross",
-            line=dict(width=2, color="darkgreen")
+            line=dict(width=1, color="#FFFFFF")
         ),
         text=["Perfect Health Center"],
         hovertemplate="<b>Perfect Health Center</b><br>Distance: 0.00<extra></extra>"

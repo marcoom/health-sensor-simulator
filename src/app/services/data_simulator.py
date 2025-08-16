@@ -18,7 +18,7 @@ from src.app.constants import (
 from src.app.utils.math_utils import apply_variance_to_health_data
 
 # Dataset generation constants
-DEFAULT_DATASET_SIZE = 1000
+DEFAULT_DATASET_SIZE = 500
 RANDOM_SEED = 42
 
 
@@ -90,19 +90,6 @@ class HealthDataGenerator:
         self.last_generation_time: Optional[float] = None
         self.current_health_point: Optional[Dict[str, float]] = None
     
-    def should_generate_new_point(self) -> bool:
-        """Check if enough time has passed to generate a new data point.
-        
-        Returns:
-            True if it's time to generate a new automatic data point
-        """
-        if self.last_generation_time is None:
-            return True
-        
-        current_time = time.time()
-        time_elapsed = current_time - self.last_generation_time
-        return time_elapsed >= self.settings.DATA_GENERATION_INTERVAL_SECONDS
-    
     def generate_new_health_point(
         self, 
         health_values: Dict[str, float], 
@@ -142,16 +129,3 @@ class HealthDataGenerator:
         """
         return generate_health_point_with_variance(health_values, variance_multiplier)
     
-    def get_time_until_next_generation(self) -> float:
-        """Get the time remaining until the next automatic generation.
-        
-        Returns:
-            Seconds remaining until next automatic refresh (0.0 if due now)
-        """
-        if self.last_generation_time is None:
-            return 0.0
-        
-        current_time = time.time()
-        time_elapsed = current_time - self.last_generation_time
-        time_remaining = self.settings.DATA_GENERATION_INTERVAL_SECONDS - time_elapsed
-        return max(0.0, time_remaining)

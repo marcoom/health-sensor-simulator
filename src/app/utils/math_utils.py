@@ -1,7 +1,7 @@
 """Mathematical utility functions for health sensor calculations."""
 
 import numpy as np
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple
 from sklearn.preprocessing import StandardScaler
 
 
@@ -93,36 +93,9 @@ def create_artificial_center_points(num_points: int = 50) -> List[Tuple[float, f
         # Small random angles and very small distances for center cluster
         theta = rng.uniform(0, 2 * np.pi)
         # Most points very close to center, with exponential falloff
-        distance = rng.exponential(0.1)  # Small scale for tight clustering
+        distance = rng.exponential(2)  # Controls tightening of clustering
         center_points.append((theta, distance))
     
     return center_points
 
 
-def validate_health_parameter_ranges(
-    health_data: Dict[str, float], 
-    parameter_specs: Dict[str, Dict[str, Any]]
-) -> Dict[str, bool]:
-    """Validate health parameters against their normal ranges.
-    
-    Args:
-        health_data: Health parameter values to validate
-        parameter_specs: Parameter specifications with min/max ranges
-        
-    Returns:
-        Dictionary mapping parameter names to validation status
-    """
-    validation_results = {}
-    
-    for param_name, value in health_data.items():
-        if param_name in parameter_specs:
-            spec = parameter_specs[param_name]
-            min_val = spec.get('min_rest', float('-inf'))
-            max_val = spec.get('max_rest', float('inf'))
-            
-            validation_results[param_name] = min_val <= value <= max_val
-        else:
-            # Unknown parameter, mark as invalid
-            validation_results[param_name] = False
-    
-    return validation_results

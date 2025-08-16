@@ -3,21 +3,9 @@
 import streamlit as st
 from typing import Dict, Any, Union
 
-from src.app.constants import HEALTH_PARAMS, DEFAULT_DISPERSION
-from src.app.ui.config import SLIDER_CONFIG
+from src.app.constants import HEALTH_PARAMS
 
 
-def reset_to_rest_state() -> None:
-    """Reset all slider values to their resting state defaults.
-    
-    This function iterates through all configured sliders and sets their
-    session state values to the mean resting values from health parameters.
-    """
-    for config in SLIDER_CONFIG.values():
-        param_key = config["param_key"] 
-        session_key = config["session_key"]
-        rest_value = HEALTH_PARAMS[param_key]["mean_rest"]
-        st.session_state[session_key] = rest_value
 
 
 def create_slider(container: Any, config: Dict[str, Union[str, type]]) -> Union[int, float]:

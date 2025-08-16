@@ -4,41 +4,12 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from src.app.ui.helpers import (
-    reset_to_rest_state,
     create_slider
 )
 from src.app.ui.config import SLIDER_CONFIG
-from src.app.constants import HEALTH_PARAMS, DEFAULT_DISPERSION
+from src.app.constants import HEALTH_PARAMS
 
 
-class TestResetToRestState:
-    """Test cases for reset_to_rest_state function."""
-
-    @patch('src.app.ui.helpers.st')
-    def test_reset_to_rest_state(self, mock_st):
-        """Test that reset_to_rest_state sets correct values."""
-        mock_st.session_state = {}
-        
-        reset_to_rest_state()
-        
-        # Check that session state was updated for each slider
-        for config in SLIDER_CONFIG.values():
-            param_key = config["param_key"]
-            session_key = config["session_key"]
-            expected_value = HEALTH_PARAMS[param_key]["mean_rest"]
-            
-            assert mock_st.session_state[session_key] == expected_value
-
-    @patch('src.app.ui.helpers.st')
-    def test_reset_to_rest_state_existing_values(self, mock_st):
-        """Test reset when session state already has values."""
-        mock_st.session_state = {"heart_rate": 120.0, "body_temperature": 38.0}
-        
-        reset_to_rest_state()
-        
-        # Should overwrite existing values with rest state values
-        assert mock_st.session_state["heart_rate"] == HEALTH_PARAMS["heart_rate"]["mean_rest"]
-        assert mock_st.session_state["body_temperature"] == HEALTH_PARAMS["body_temperature"]["mean_rest"]
 
 
 class TestCreateSlider:

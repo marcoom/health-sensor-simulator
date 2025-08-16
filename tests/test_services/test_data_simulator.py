@@ -21,7 +21,7 @@ class TestGenerateDummyData:
         df = generate_dummy_data()
         
         assert isinstance(df, pd.DataFrame)
-        assert len(df) == 1000  # Default size
+        assert len(df) == 500  # Default size
         assert list(df.columns) == list(HEALTH_PARAMS.keys())
 
     def test_generate_dummy_data_custom_size(self):
@@ -144,29 +144,6 @@ class TestHealthDataGenerator:
         assert generator.last_generation_time is None
         assert generator.current_health_point is None
 
-    def test_should_generate_new_point_first_call(self):
-        """Test that should_generate_new_point returns True on first call."""
-        generator = HealthDataGenerator()
-        
-        assert generator.should_generate_new_point() is True
-
-    def test_should_generate_new_point_timing(self):
-        """Test timing logic for should_generate_new_point."""
-        generator = HealthDataGenerator()
-        
-        # Mock time to control timing
-        with patch('time.time') as mock_time:
-            mock_time.return_value = 1000.0
-            
-            # Set a recent generation time
-            generator.last_generation_time = 999.0  # 1 second ago
-            
-            # Should not generate yet (less than interval)
-            assert generator.should_generate_new_point() is False
-            
-            # Move time forward beyond interval
-            mock_time.return_value = 1006.0  # 6 seconds from generation
-            assert generator.should_generate_new_point() is True
 
     def test_generate_new_health_point(self):
         """Test generate_new_health_point method."""
@@ -192,25 +169,6 @@ class TestHealthDataGenerator:
         assert isinstance(result, dict)
         assert "heart_rate" in result
 
-    def test_get_time_until_next_generation(self):
-        """Test get_time_until_next_generation method."""
-        generator = HealthDataGenerator()
-        
-        # No previous generation
-        assert generator.get_time_until_next_generation() == 0.0
-        
-        # With previous generation time
-        with patch('time.time') as mock_time:
-            mock_time.return_value = 1000.0
-            generator.last_generation_time = 998.0  # 2 seconds ago
-            
-            # Should return remaining time (5 - 2 = 3 seconds)
-            expected_remaining = generator.settings.DATA_GENERATION_INTERVAL_SECONDS - 2
-            assert generator.get_time_until_next_generation() == expected_remaining
-            
-            # When time has passed beyond interval
-            generator.last_generation_time = 994.0  # 6 seconds ago
-            assert generator.get_time_until_next_generation() == 0.0
 
 
 if __name__ == "__main__":
