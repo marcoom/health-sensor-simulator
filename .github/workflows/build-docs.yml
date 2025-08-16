@@ -2,10 +2,6 @@ name: Build Docs
 on:
   push:
     branches: [main]
-    paths:
-      - "docs/**"
-      - "src/**"
-      - "README.md"
   workflow_dispatch:
 
 jobs:
@@ -24,13 +20,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Create virtual environment and install dependencies
         run: |
+          python -m venv .venv
+          source .venv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements/doc.txt
 
       - name: Build HTML docs
-        run: make docs-html
+        run: |
+          source .venv/bin/activate
+          make docs-html
 
       - name: Copy diagrams to docs directory
         run: |
