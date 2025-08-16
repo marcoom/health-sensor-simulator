@@ -1,7 +1,7 @@
 Usage
 =====
 
-⚠️ **Current Status**: This project is currently a functional skeleton with basic API infrastructure in place. Core health monitoring and anomaly detection features are under development.
+**[DEVELOPMENT]** **Current Status**: This project is currently a functional skeleton with basic API infrastructure in place. Core health monitoring and anomaly detection features are under development.
 
 Current API Endpoints
 ---------------------
@@ -36,7 +36,7 @@ Running the API Service
 
 1. **Method 1: Using uvicorn directly**::
 
-    $ uvicorn health_sensor_simulator.main:app --host 0.0.0.0 --port 8000 --reload
+    $ uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 2. **Method 2: Using the Makefile (recommended)**::
 

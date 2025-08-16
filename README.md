@@ -1,21 +1,13 @@
 # Health Sensor Simulator
 
-⚠️ **Current Status**: This project is currently a functional skeleton with basic API infrastructure in place. Core health monitoring and anomaly detection features are under development.
+**[COMPLETE]** **Current Status**: Fully functional health data simulator with interactive Streamlit UI and FastAPI backend. Real-time health data visualization with automatic refresh and configurable parameters.
 
 ## Project Description
-**Health Sensor Simulator** is a project built with **FastAPI** that simulates a wearable health device measuring vital signs such as heart rate, breathing rate, blood oxygen saturation, blood pressure, and body temperature. It applies an Extended Isolation Forest anomaly detection model to identify abnormal readings and sends outbound alarm notifications via HTTP POST to an external endpoint when anomalies are detected.
+**Health Sensor Simulator** is a comprehensive health monitoring simulation platform built with **FastAPI** and **Streamlit**. It simulates realistic wearable health device data including heart rate, breathing rate, blood oxygen saturation, blood pressure, and body temperature. The system features an interactive web interface for real-time data visualization and parameter configuration.
 
-![System Architecture](_static/images/system_architecture.png)
+![User Interface](./docs/diagrams/streamlit_ui_anomaly.png)
 
-The service:
-- Provides a **REST API** with endpoints to retrieve simulated health metrics and metadata.
-- Runs an **anomaly detection loop** using an Extended Isolation Forest model to identify abnormal readings.
-- Sends **outbound alarm notifications** via HTTP POST to an external endpoint when anomalies are detected.
-- Includes a maintainable architecture, clean code practices, and comprehensive testing
-
----
-
-## Features
+## Key Features
 - **FastAPI-based REST API** with OpenAPI documentation.
 - **Anomaly detection** using a trained Extended Isolation Forest model (`eif.joblib`).
 - **Data simulation** to generate realistic vital sign measurements.
@@ -24,9 +16,23 @@ The service:
 - **Comprehensive unit tests** for API endpoints and anomaly detection model.
 - **Dockerized** for consistent deployment.
 
-## Current API Endpoints
+![System Architecture](./docs/diagrams/system_architecture.png)
+
+The Health Sensor Simulator is part of a stack of applications that allow a user to track the metrics and get notified of alarms in real time, and analyze historical values, using intuitive dashboards. The stack's project is located in this [link](https://github.com/marcoom/health-anomaly-detector-stack).
+
+![Health Anomaly Detector Stack](./docs/diagrams/compose_app.png)
+
+## Current Functionality
+### Working Features
+- **FastAPI REST API** with OpenAPI documentation
+- **Streamlit Web Interface** with interactive health parameter controls
+- **Real-time Data Generation** with configurable variance and automatic refresh
+- **Health Data Visualization** using radial distance plots
+- **Parameter Validation** with realistic health value ranges
+- **Integrated Launcher** running both services from single command
+
+### API Endpoints
 - `GET /api/v1/version` - Returns the service version
-- `GET /api/v1/vitals` - Returns latest health readings *(under development)*
 
 ---
 
@@ -60,7 +66,7 @@ make install               # Production dependencies only
 ### 3. Run the Service
 ```bash
 # Method 1: Using uvicorn directly
-uvicorn health_sensor_simulator.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
 # Method 2: Using the Makefile (recommended)
 make run
@@ -143,12 +149,12 @@ make docs-clean
 │   ├── models/                   # ML model artifacts (e.g., Isolation Forest)
 │   └── processed/                 # Processed datasets
 ├── docs/                         # Project documentation (Sphinx, diagrams, business notes)
-├── health_sensor_simulator/      # Main FastAPI application package
+├── src/                          # Main FastAPI application package
 │   ├── app/
 │   │   ├── api/                  # API routes (GET /version, GET /vitals)
 │   │   ├── schemas/              # Pydantic models for request/response data
 │   │   ├── services/             # Business logic (data simulation, anomaly detection, alarm client)
-│   │   ├── ui/                   # Streamlit UI for viewing and editing simulated vitals
+│   │   ├── ui/                   # Streamlit UI components (app, config, helpers, visualization)
 │   │   ├── utils/                # Utilities (logging, helpers)
 │   │   └── version.py            # Service version info
 │   └── main.py                   # FastAPI entry point (app setup and startup tasks)

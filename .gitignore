@@ -50,10 +50,9 @@ backup/*
 # macOS Desktop Services Store
 .DS_Store
 
-# plots
-*.png
-
+# Virtual environments
 venv
+.venv
 
 # Claude Code context file
 CLAUDE.md

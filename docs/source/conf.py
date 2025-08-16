@@ -106,7 +106,7 @@ html_theme_options = {}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ['_static', '../diagrams']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -148,6 +148,40 @@ latex_elements = {
     \usepackage[table]{xcolor}
     \usepackage{times}
     \usepackage{babel}
+    % Configure draft mode for missing images - no errors, just continue
+    \makeatletter
+    \def\Ginclude@graphics#1{%
+      \begingroup
+      \let\input@path\Ginput@path
+      \filename@parse{#1}%
+      \ifx\filename@ext\relax
+        \@for\Gin@temp:=\Gin@extensions\do{%
+          \ifx\Gin@org@type\@undefined
+            \IfFileExists{\filename@area\filename@base\Gin@temp}%
+            {\xdef\Gin@org@type{\Gin@temp}}{}%
+          \fi}%
+      \else
+        \ifx\Gin@org@type\@undefined
+          \IfFileExists{\filename@area\filename@base\filename@ext}%
+          {\xdef\Gin@org@type{\filename@ext}}%
+          {\xdef\Gin@org@type{}}%
+        \fi
+      \fi
+      \ifx\Gin@org@type\@empty
+        \PackageWarning{graphicx}{File `#1' not found, using draft mode}%
+        \setkeys{Gin}{draft}%
+        \def\Gin@base{\filename@base}%
+        \edef\Gin@ext{.eps}%
+      \else
+        \edef\Gin@ext{\Gin@org@type}%
+        \def\Gin@base{\filename@area\filename@base}%
+      \fi
+      \endgroup
+      \Gin@setfile\Gin@org@type\Gin@base\Gin@ext
+    }
+    \makeatother
+    % Set draft mode globally for missing images
+    \setkeys{Gin}{draft=false}
     ''',
 
     # Latex figure (float) alignment
@@ -175,7 +209,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'health_sensor_simulator', project + ' Documentation', [author], 1)
+    (master_doc, 'src', project + ' Documentation', [author], 1)
 ]
 
 
@@ -219,3 +253,5 @@ intersphinx_mapping = {
 }
 
 add_module_names = False
+
+

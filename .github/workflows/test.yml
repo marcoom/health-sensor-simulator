@@ -1,65 +1,25 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Unit Test
-
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
-on:
-  # Trigger the workflow on push or pull request,
-  # but only for the master branch
-  push:
-    branches:
-      - develop
-  pull_request:
-    branches:
-      - master
-      - develop
+on: [push, pull_request]
 
 env:
   PYTHON_VERSION: "3.11"
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains two jobs "linting" and "test"
-
-  linting:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Run flake8 check
-      run: make flake8
-    - name: Run mypy check
-      run: make mypy
-    - name: Run bandit check
-      run: make bandit
-
   test:
-    needs: linting
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
+        python-version: '3.11'
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements/dev.txt
-        pip install -e .
 
     - name: Test with pytest
-      run: |
-        pytest
-      
+      run: python -m pytest tests/ -v

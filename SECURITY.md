@@ -10,8 +10,8 @@ Only the latest code in the `main` branch is actively maintained. Older tags or 
 
 | Version | Supported |
 |---------|-----------|
-| `main`  | ✅ |
-| Anything before the latest release tag | ❌ |
+| `main`  | Yes |
+| Anything before the latest release tag | No |
 
 ---
 

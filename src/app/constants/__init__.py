@@ -1,0 +1,17 @@
+"""Constants package for health sensor simulator."""
+
+from .health_params import (
+    HEALTH_PARAMS,
+    DEFAULT_DISPERSION,
+    UI_REFRESH_INTERVAL_SECONDS,
+    AUTO_REFRESH_CHECK_INTERVAL_SECONDS,
+    SLIDER_TO_PARAM_MAPPING,
+)
+
+__all__ = [
+    "HEALTH_PARAMS",
+    "DEFAULT_DISPERSION", 
+    "UI_REFRESH_INTERVAL_SECONDS",
+    "AUTO_REFRESH_CHECK_INTERVAL_SECONDS",
+    "SLIDER_TO_PARAM_MAPPING",
+]

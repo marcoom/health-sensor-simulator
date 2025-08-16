@@ -1,3 +1,19 @@
+# FastAPI and web framework dependencies
 fastapi~=0.95
 pydantic~=1.10
 uvicorn~=0.22
+
+# Streamlit UI dependencies  
+streamlit==1.48.1
+plotly==6.3.0
+
+# Data science and machine learning
+scikit-learn==1.7.1
+pandas>=2.3.1
+numpy>=2.3.2
+
+# Additional dependencies for current functionality
+typing-extensions>=4.0.0  # For enhanced type hints
+
+# Note: Dependencies are pinned for reproducibility
+# Run 'pip install -e .' to install in development mode

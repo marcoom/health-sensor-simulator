@@ -1,1 +1,0 @@
-from health_sensor_simulator.app.version import __version__

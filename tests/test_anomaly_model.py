@@ -1,4 +1,4 @@
-from health_sensor_simulator.app.version import __version__
+from src.app.version import __version__
 
 
 def test_get_version(test_client):
