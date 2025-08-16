@@ -43,7 +43,7 @@ install-dev: install
 # ------------------------------------------------------------
 run: install
 	@echo "Starting application..."
-#	$(PYTHON) src/app.py
+	$(PYTHON) -m src.main
 
 # ------------------------------------------------------------
 # TESTING
@@ -54,7 +54,7 @@ test: install-dev
 
 test-coverage: install-dev
 	@echo "Running tests with coverage..."
-	$(PYTHON) -m pytest tests/ --cov=health_sensor_simulator --cov-report=term-missing --cov-report=html
+	$(PYTHON) -m pytest tests/ --cov=src --cov-report=term-missing --cov-report=html
 
 # ------------------------------------------------------------
 # DOCUMENTATION
@@ -69,7 +69,8 @@ docs-html: install-dev
 
 docs-pdf: install-dev
 	@echo "Building PDF documentation (requires LaTeX)..."
-	$(SPHINXBUILD) -M latexpdf "$(DOCSSOURCEDIR)" "$(DOCSBUILDDIR)" $(SPHINXOPTS)
+	LATEXOPTS="-interaction=nonstopmode" $(SPHINXBUILD) -M latexpdf "$(DOCSSOURCEDIR)" "$(DOCSBUILDDIR)" $(SPHINXOPTS) || \
+	(cd $(DOCSBUILDDIR)/latex && latexmk -pdf -f -interaction=nonstopmode health-sensor-simulator.tex)
 	@echo "PDF documentation built in $(DOCSBUILDDIR)/latex/"
 
 docs-clean:

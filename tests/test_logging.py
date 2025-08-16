@@ -4,7 +4,7 @@ import os
 from unittest.mock import patch
 import pytest
 
-from health_sensor_simulator.app.config import Settings, get_settings
+from src.app.config import Settings, get_settings
 
 
 class TestLoggingConfiguration:
@@ -41,7 +41,7 @@ class TestLoggingConfiguration:
         # Check handler level
         assert logging_config["handlers"]["consoleHandler"]["level"] == "WARNING"
         # Check logger level
-        assert logging_config["loggers"]["health_sensor_simulator"]["level"] == "WARNING"
+        assert logging_config["loggers"]["src"]["level"] == "WARNING"
 
     def test_logging_config_structure(self):
         """Test that logging configuration has correct structure."""
@@ -65,7 +65,7 @@ class TestLoggingConfiguration:
         assert handler["formatter"] == "standardFormatter"
         
         # Check loggers
-        assert "health_sensor_simulator" in logging_config["loggers"]
+        assert "src" in logging_config["loggers"]
         assert "uvicorn" in logging_config["loggers"]
         assert "uvicorn.access" in logging_config["loggers"]
 
@@ -88,7 +88,7 @@ class TestLoggingConfiguration:
             logging_config = settings.get_logging_config()
             
             assert logging_config["handlers"]["consoleHandler"]["level"] == level
-            assert logging_config["loggers"]["health_sensor_simulator"]["level"] == level
+            assert logging_config["loggers"]["src"]["level"] == level
 
 
 class TestStartupLogging:
@@ -103,12 +103,12 @@ class TestStartupLogging:
         # Capture log output
         log_capture = StringIO()
         handler = logging.StreamHandler(log_capture)
-        logger = logging.getLogger("health_sensor_simulator")
+        logger = logging.getLogger("src")
         logger.addHandler(handler)
         logger.setLevel(logging.INFO)
         
         # Test the log message directly
-        from health_sensor_simulator.app.config import get_settings
+        from src.app.config import get_settings
         settings = get_settings()
         logger.info(f"Starting {settings.PROJECT_NAME} with log level: {settings.LOG_LEVEL}")
         
@@ -131,12 +131,12 @@ class TestStartupLogging:
                 # Capture log output
                 log_capture = StringIO()
                 handler = logging.StreamHandler(log_capture)
-                logger = logging.getLogger("health_sensor_simulator")
+                logger = logging.getLogger("src")
                 logger.addHandler(handler)
                 logger.setLevel(logging.DEBUG)  # Set to DEBUG to capture all levels
                 
                 # Test the log message
-                from health_sensor_simulator.app.config import Settings
+                from src.app.config import Settings
                 settings = Settings()
                 logger.info(f"Starting {settings.PROJECT_NAME} with log level: {settings.LOG_LEVEL}")
                 
