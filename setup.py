@@ -19,12 +19,12 @@ AUTHOR = 'Marco Mongi'
 EMAIL = 'marco.mongi@example.com'
 
 try:
-    VERSION = import_module(NAME+".app.version").__version__
+    VERSION = import_module("src.app.version").__version__
 except Exception as e:
     print("Version information cannot be imported using "
           f"'importlib.import_module' due to {e}.")
     about = dict()
-    version_path = Path(__file__).resolve().parent.joinpath(NAME, "app",
+    version_path = Path(__file__).resolve().parent.joinpath("src", "app",
                                                             "version.py")
     exec(version_path.read_text(), about)
     VERSION = about["__version__"]
@@ -54,9 +54,9 @@ setup(name=NAME,
       long_description=LONG_DESCRIPTION,
       long_description_content_type='text/markdown',
       url=URL,
-      packages=find_packages(include=["health_sensor_simulator*"],
+      packages=find_packages(include=["src*"],
                              exclude=["tests*", "scripts*", "docs*"]),
-      package_data={NAME: ["data/*", ], },
+      package_data={"src": ["data/*", ], },
       install_requires=INSTALL_REQUIRED,
       test_requires=DEV_REQUIRED,
       extras_require=EXTRAS,
