@@ -5,7 +5,7 @@
 ## Project Description
 **Health Sensor Simulator** is a comprehensive health monitoring simulation platform built with **FastAPI** and **Streamlit**. It simulates realistic wearable health device data including heart rate, breathing rate, blood oxygen saturation, blood pressure, and body temperature. The system features an interactive web interface for real-time data visualization and parameter configuration.
 
-![User Interface](docs/diagrams/streamlit_ui_anomaly.png)
+![User Interface](./docs/diagrams/streamlit_ui_anomaly.png)
 
 ## Key Features
 - **FastAPI-based REST API** with OpenAPI documentation.
@@ -16,11 +16,11 @@
 - **Comprehensive unit tests** for API endpoints and anomaly detection model.
 - **Dockerized** for consistent deployment.
 
-![System Architecture](docs/diagrams/system_architecture.png)
+![System Architecture](./docs/diagrams/system_architecture.png)
 
 The Health Sensor Simulator is part of a stack of applications that allow a user to track the metrics and get notified of alarms in real time, and analyze historical values, using intuitive dashboards. The stack's project is located in this [link](https://github.com/marcoom/health-anomaly-detector-stack).
 
-![Health Anomaly Detector Stack](docs/diagrams/compose_app.png)
+![Health Anomaly Detector Stack](./docs/diagrams/compose_app.png)
 
 ## Current Functionality
 ### Working Features
