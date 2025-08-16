@@ -16,9 +16,6 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Create virtual environment
-      run: python3.11 -m venv .venv
-
     - name: Install dependencies
       run: make install-dev
 
