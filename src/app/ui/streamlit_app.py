@@ -15,6 +15,13 @@ from src.app.ui.helpers import create_slider
 from src.app.ui.visualization import create_radial_scatter_plot
 from src.app.constants import UI_REFRESH_INTERVAL_SECONDS
 
+st.set_page_config(
+    page_title="Health Sensor Simulator",
+    page_icon="🩺",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={"About": "This is a health sensor simulator app that performs anomaly detection in generated data."}
+)
 
 @st.cache_data
 def get_dummy_dataset():
@@ -38,7 +45,7 @@ if 'last_auto_update' not in st.session_state:
 st.title("Health Sensor Simulator")
 
 # Sidebar: Health parameter sliders
-container_vitals = st.sidebar.container()
+container_vitals = st.sidebar.container(border=True)
 container_vitals.write("Set Vitals")
 health_values: Dict[str, float] = {}
 for key, config in SLIDER_CONFIG.items():
@@ -82,13 +89,13 @@ visualization_figure = create_radial_scatter_plot(health_dataset, health_point)
 st.plotly_chart(visualization_figure, use_container_width=True)
 
 # Add explanatory text below the plot
-st.caption("Distance from center indicates overall health deviation from normal values. The angle does not convey medical information and is only used for visualization purposes to distribute points clearly.")
+st.caption("Distance from center shows health deviation. Angle is for display only and does not convey information.")
 
 # Anomaly detection and alarm component
 alarm_placeholder = st.empty()
 is_anomaly, anomaly_score = detect_anomaly(health_point)
 if is_anomaly:
-    alarm_placeholder.warning(f"⚠️ Health parameters are outside normal ranges. Please consult a healthcare professional. Anomaly probability: {anomaly_score:.1%}")
+    alarm_placeholder.warning(f"⚠️ Health Anomaly Detected. Probability: {anomaly_score:.1%}. Consult a professional.")
 else:
     alarm_placeholder.empty()
 
