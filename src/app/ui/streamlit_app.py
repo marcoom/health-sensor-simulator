@@ -8,7 +8,7 @@ import streamlit as st
 import time
 from typing import Dict
 
-from src.app.services.data_simulator import generate_dummy_data, HealthDataGenerator
+from src.app.services.data_simulator import generate_dummy_data, get_shared_data_generator, store_current_health_point
 from src.app.services.anomaly_detector import detect_anomaly
 from src.app.ui.config import SLIDER_CONFIG, DEFAULT_DISPERSION
 from src.app.ui.helpers import create_slider
@@ -35,9 +35,9 @@ def get_dummy_dataset():
     """
     return generate_dummy_data()
 
-# Initialize session state and data generator
+# Initialize session state and data generator (use shared instance)
 if 'data_generator' not in st.session_state:
-    st.session_state.data_generator = HealthDataGenerator()
+    st.session_state.data_generator = get_shared_data_generator()
 if 'last_auto_update' not in st.session_state:
     st.session_state.last_auto_update = time.time()
 
@@ -82,6 +82,10 @@ if time_since_last_update >= data_generator.settings.DATA_GENERATION_INTERVAL_SE
     should_refresh = True
 else:
     health_point = data_generator.get_current_health_point(health_values, dispersion)
+
+# Store the generated health point in shared memory for API access
+store_current_health_point(health_point)
+
 
 # Display visualization
 health_dataset = get_dummy_dataset()

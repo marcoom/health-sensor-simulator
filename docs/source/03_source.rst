@@ -15,10 +15,7 @@ API Routes
 
 Schemas
 -------
-.. automodule:: src.app.schemas.vitals
-    :members:
-
-.. automodule:: src.app.schemas.anomalies
+.. automodule:: src.app.api.schemas
     :members:
 
 Services

@@ -1,13 +1,13 @@
 Usage
 =====
 
-**[DEVELOPMENT]** **Current Status**: This project is currently a functional skeleton with basic API infrastructure in place. Core health monitoring and anomaly detection features are under development.
+**[COMPLETE]** **Current Status**: Fully functional health sensor simulator with FastAPI backend, Streamlit UI, and comprehensive inter-process communication for synchronized health data.
 
 Current API Endpoints
 ---------------------
 
 - ``GET /api/v1/version`` - Returns the service version
-- ``GET /api/v1/vitals`` - Returns latest health readings *(under development)*
+- ``GET /api/v1/vitals`` - Returns latest health readings (synchronized with Streamlit UI via file-based IPC)
 
 Local Development
 -----------------
@@ -31,27 +31,35 @@ Environment Setup
     # OR
     $ make install       # Production dependencies only
 
-Running the API Service
-:::::::::::::::::::::::
+Running the Integrated Service
+::::::::::::::::::::::::::::::
 
-1. **Method 1: Using uvicorn directly**::
+1. **Method 1: Integrated mode - FastAPI + Streamlit (recommended)**::
 
-    $ uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    $ python -m src.main
 
-2. **Method 2: Using the Makefile (recommended)**::
+2. **Method 2: Using the Makefile (same as Method 1)**::
 
     $ make run
 
-3. **Access the service**:
+3. **Method 3: FastAPI only**::
 
-   - API Base URL: http://localhost:8000
-   - Interactive API Documentation (Swagger UI): http://localhost:8000/docs
-   - Alternative API Documentation (ReDoc): http://localhost:8000/redoc
+    $ uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 
-4. **Test the API**::
+4. **Access the services**:
+
+   - **Streamlit UI**: http://localhost:8501 - Interactive health parameter controls and visualization
+   - **API Base URL**: http://localhost:8000
+   - **Interactive API Documentation (Swagger UI)**: http://localhost:8000/docs
+   - **Alternative API Documentation (ReDoc)**: http://localhost:8000/redoc
+
+5. **Test the API**::
 
     $ curl http://localhost:8000/api/v1/version
     # Expected response: {"version":"0.1.0"}
+    
+    $ curl http://localhost:8000/api/v1/vitals
+    # Expected response: {"ts":"2024-01-01T12:00:00Z","heart_rate":80,"oxygen_saturation":98,...}
 
 Environment Variables
 :::::::::::::::::::::

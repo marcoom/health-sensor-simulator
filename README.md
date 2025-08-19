@@ -33,6 +33,7 @@ The Health Sensor Simulator is part of a stack of applications that allow a user
 
 ### API Endpoints
 - `GET /api/v1/version` - Returns the service version
+- `GET /api/v1/vitals` - Returns the latest readings of all health variables (synchronized with Streamlit UI)
 
 ---
 
@@ -65,25 +66,31 @@ make install               # Production dependencies only
 
 ### 3. Run the Service
 ```bash
-# Method 1: Using uvicorn directly
-uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+# Method 1: Integrated mode - FastAPI + Streamlit (recommended)
+python -m src.main
 
-# Method 2: Using the Makefile (recommended)
+# Method 2: Using the Makefile (same as Method 1)
 make run
+
+# Method 3: FastAPI only
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### 4. Access the Service
+- **Streamlit UI**: [http://localhost:8501](http://localhost:8501) - Interactive health parameter controls and visualization
 - **API Base URL**: [http://localhost:8000](http://localhost:8000)
-- **Interactive API Documentation (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Interactive API Documentation (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)  
 - **Alternative API Documentation (ReDoc)**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ### 5. Test the API
 ```bash
 # Test the version endpoint
 curl http://localhost:8000/api/v1/version
+# Expected response: {"version":"0.1.0"}
 
-# Expected response:
-# {"version":"0.1.0"}
+# Test the vitals endpoint
+curl http://localhost:8000/api/v1/vitals
+# Expected response: {"ts":"2024-01-01T12:00:00Z","heart_rate":80,"oxygen_saturation":98,...}
 ```  
 
 ---
@@ -148,24 +155,38 @@ make docs-clean
 ## Project Structure
 ```text
 .
-├── data/                         # Datasets and trained models
-│   ├── models/                   # ML model artifacts (e.g., Isolation Forest)
-│   └── processed/                 # Processed datasets
-├── docs/                         # Project documentation (Sphinx, diagrams, business notes)
-├── src/                          # Main FastAPI application package
+├── data/                         # Datasets and processed data
+│   └── processed/                # Processed health variables dataset
+├── docs/                         # Project documentation (Sphinx, diagrams)
+├── src/                          # Main application package
 │   ├── app/
-│   │   ├── api/                  # API routes (GET /version, GET /vitals)
-│   │   ├── schemas/              # Pydantic models for request/response data
-│   │   ├── services/             # Business logic (data simulation, anomaly detection, alarm client)
-│   │   ├── ui/                   # Streamlit UI components (app, config, helpers, visualization)
-│   │   ├── utils/                # Utilities (logging, helpers)
-│   │   └── version.py            # Service version info
-│   └── main.py                   # FastAPI entry point (app setup and startup tasks)
-├── notebooks/                    # Jupyter notebooks (dataset generation, model training)
-├── requirements/                 # Base and development dependencies
-├── tests/                        # Unit tests for API and anomaly detection model
-├── Dockerfile                    # Docker image definition for the API
-└── README.md                     # Project overview and usage instructions
+│   │   ├── api/                  # FastAPI routes and schemas
+│   │   │   ├── routes.py         # API endpoints (/version, /vitals)
+│   │   │   └── schemas.py        # Pydantic models (VitalsResponse, etc.)
+│   │   ├── constants/            # Health parameters and constants
+│   │   ├── services/             # Business logic layer
+│   │   │   ├── data_simulator.py # Health data generation + IPC
+│   │   │   ├── anomaly_detector.py # Anomaly detection
+│   │   │   └── alarm_client.py   # External alarm notifications
+│   │   ├── ui/                   # Streamlit UI components
+│   │   │   ├── streamlit_app.py  # Main Streamlit application
+│   │   │   ├── config.py         # UI configuration and sliders
+│   │   │   ├── helpers.py        # UI helper functions
+│   │   │   └── visualization.py  # Health data visualization
+│   │   ├── utils/                # Utility functions
+│   │   ├── config.py             # Application configuration
+│   │   └── version.py            # Version information
+│   ├── models/                   # Trained ML models
+│   │   └── eif.joblib           # Extended Isolation Forest model
+│   └── main.py                   # Integrated application launcher
+├── notebooks/                    # Jupyter notebooks for data generation
+├── tests/                        # Comprehensive test suite (135+ tests)
+│   ├── test_api.py              # API endpoint tests (21 tests)
+│   ├── test_constants/          # Constants and parameters tests
+│   ├── test_services/           # Business logic tests
+│   ├── test_ui/                 # UI component tests
+│   └── test_utils/              # Utility function tests
+└── requirements/                 # Dependencies (base, dev, docs)
 ```
 
 ---
