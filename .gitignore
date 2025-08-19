@@ -54,6 +54,10 @@ backup/*
 venv
 .venv
 
+# IDE specific files
+.vscode/
+.idea/
+
 # Claude Code context file
 CLAUDE.md
 
