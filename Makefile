@@ -41,18 +41,18 @@ install-dev: install
 # ------------------------------------------------------------
 # RUN
 # ------------------------------------------------------------
-run: install
+run:
 	@echo "Starting application..."
 	$(PYTHON) -m src.main
 
 # ------------------------------------------------------------
 # TESTING
 # ------------------------------------------------------------
-test: install-dev
+test:
 	@echo "Running tests with pytest..."
 	$(PYTHON) -m pytest tests/ -v
 
-test-coverage: install-dev
+test-coverage:
 	@echo "Running tests with coverage..."
 	$(PYTHON) -m pytest tests/ --cov=src --cov-report=term-missing --cov-report=html
 
@@ -62,12 +62,12 @@ test-coverage: install-dev
 # Build both HTML and PDF documentation
 docs: docs-html docs-pdf
 
-docs-html: install-dev
+docs-html:
 	@echo "Building HTML documentation..."
 	$(SPHINXBUILD) -M html "$(DOCSSOURCEDIR)" "$(DOCSBUILDDIR)" $(SPHINXOPTS)
 	@echo "HTML documentation built in $(DOCSBUILDDIR)/html/"
 
-docs-pdf: install-dev
+docs-pdf:
 	@echo "Building PDF documentation (requires LaTeX)..."
 	LATEXOPTS="-interaction=nonstopmode" $(SPHINXBUILD) -M latexpdf "$(DOCSSOURCEDIR)" "$(DOCSBUILDDIR)" $(SPHINXOPTS) || \
 	(cd $(DOCSBUILDDIR)/latex && latexmk -pdf -f -interaction=nonstopmode health-sensor-simulator.tex)

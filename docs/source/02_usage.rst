@@ -1,7 +1,7 @@
 Usage
 =====
 
-**Current Status**: Fully functional health sensor simulator with FastAPI backend, Streamlit UI, and comprehensive inter-process communication for synchronized health data.
+Health Sensor Simulator is a production-ready health monitoring simulation platform with dual anomaly detection methods, intelligent alarm system, and comprehensive configuration options.
 
 Current API Endpoints
 ---------------------
@@ -61,22 +61,106 @@ Running the Integrated Service
     $ curl http://localhost:8000/api/v1/vitals
     # Expected response: {"ts":"2024-01-01T12:00:00Z","heart_rate":80,"oxygen_saturation":98,...}
 
-Environment Variables
-:::::::::::::::::::::
+Environment Configuration
+:::::::::::::::::::::::::
+
+The application supports flexible configuration through environment variables and ``.env`` file. 
+Configuration follows this precedence: **Environment Variables** > **``.env`` file** > **Default values**.
 
 .. list-table:: Environment Variables
-   :widths: 15 25 50
+   :widths: 15 15 15 40
    :header-rows: 1
 
    * - Variable
-     - Sample Value
+     - Default
+     - Type
      - Description
-   * - ALARM_ENDPOINT_URL
-     - ``https://api.example.com/alarms``
-     - URL where anomaly POST notifications should be sent
-   * - MODE
-     - ``DEV``, ``TEST``, ``PROD``
-     - Deployment environment configuration (optional)
+   * - ``LOG_LEVEL``
+     - ``INFO``
+     - String
+     - Logging level (``DEBUG``, ``INFO``, ``WARNING``)
+   * - ``ANOMALY_DETECTION_METHOD``
+     - ``DISTANCE``
+     - String
+     - Detection method (``DISTANCE``, ``EIF``)
+   * - ``EIF_THRESHOLD``
+     - ``0.4``
+     - Float
+     - EIF anomaly threshold (0.0-1.0)
+   * - ``DISTANCE_THRESHOLD``
+     - ``3.8``
+     - Float
+     - Distance method threshold
+   * - ``ALARM_ENDPOINT_URL``
+     - ``None``
+     - String
+     - HTTP endpoint for anomaly notifications
+   * - ``FASTAPI_HOST``
+     - ``0.0.0.0``
+     - String
+     - FastAPI server host
+   * - ``FASTAPI_PORT``
+     - ``8000``
+     - Integer
+     - FastAPI server port
+   * - ``STREAMLIT_HOST``
+     - ``0.0.0.0``
+     - String
+     - Streamlit server host
+   * - ``STREAMLIT_PORT``
+     - ``8501``
+     - Integer
+     - Streamlit server port
+
+.env File Configuration
++++++++++++++++++++++++
+
+Create a ``.env`` file in the project root directory::
+
+    # Health Sensor Simulator Environment Configuration
+    
+    # Alarm system configuration
+    ALARM_ENDPOINT_URL=http://localhost:8080/alerts
+    
+    # Anomaly detection configuration
+    ANOMALY_DETECTION_METHOD=EIF
+    EIF_THRESHOLD=0.4
+    DISTANCE_THRESHOLD=3.8
+    
+    # Logging configuration
+    LOG_LEVEL=INFO
+
+Anomaly Detection & Alarms
+:::::::::::::::::::::::::::
+
+The system supports two anomaly detection methods:
+
+**Extended Isolation Forest (EIF)**
+  - Machine learning-based anomaly detection
+  - Uses trained model at ``src/models/eif.joblib``
+  - Threshold: probability score (0.0-1.0)
+  - More sophisticated detection of complex patterns
+
+**Distance-based Detection**
+  - Statistical analysis using radial distance from normal values
+  - Threshold: distance from center point
+  - Fast and interpretable results
+
+**Alarm Notifications**
+  When anomalies are detected, HTTP POST notifications are sent to the configured endpoint with payload::
+
+    {
+      "ts": "2024-01-01T12:00:00Z",
+      "anomaly_score": 0.85,
+      "vitals": {
+        "heart_rate": 95.5,
+        "oxygen_saturation": 88.2,
+        "breathing_rate": 22.1,
+        "blood_pressure_systolic": 140.3,
+        "blood_pressure_diastolic": 85.7,
+        "body_temperature": 37.8
+      }
+    }
 
 Docker Deployment
 :::::::::::::::::

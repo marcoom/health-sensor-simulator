@@ -1,7 +1,7 @@
 """API endpoints for health sensor simulator."""
 from typing import Any
 from fastapi import APIRouter, HTTPException
-from src.app.api.schemas import VersionResponse, VitalsResponse, AnomalyResponse
+from src.app.api.schemas import VersionResponse, VitalsResponse
 from datetime import datetime, timezone
 from src.app.version import __version__
 from src.app.services.data_simulator import get_stored_health_point
@@ -51,11 +51,3 @@ async def vitals() -> VitalsResponse:
             detail=f"Failed to generate health vitals: {str(e)}"
         )
 
-@base_router.post("/anomaly", response_model=AnomalyResponse)
-async def anomaly() -> AnomalyResponse:
-    """Detect anomalies in the current vitals data.
-    """
-    return AnomalyResponse(
-        ts=datetime.now(timezone.utc),
-        anomaly_score=0.85
-    )

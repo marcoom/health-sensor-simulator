@@ -1,8 +1,15 @@
 """Base settings class contains only important fields."""
 # mypy: ignore-errors
-from typing import Dict, Literal
+import os
+from typing import Dict, Literal, Optional
 from pydantic import BaseModel, BaseSettings
 from src.app.utils.logging import StandardFormatter
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # Load .env file if it exists
+except ImportError:
+    pass  # dotenv not available, rely on system environment variables
 
 
 class LoggingConfig(BaseModel):
@@ -29,6 +36,20 @@ class Settings(BaseSettings):
     FASTAPI_PORT: int = 8000
     STREAMLIT_HOST: str = "0.0.0.0"
     STREAMLIT_PORT: int = 8501
+    
+    # Anomaly detection configuration
+    ANOMALY_DETECTION_METHOD: Literal["DISTANCE", "EIF"] = "DISTANCE"
+    EIF_THRESHOLD: float = 0.4  # Threshold for EIF method. If probability > threshold, it's an anomaly
+    DISTANCE_THRESHOLD: float = 3.8  # Manual threshold for DISTANCE method (higher = less sensitive)
+    
+    # Alarm system configuration
+    ALARM_ENDPOINT_URL: Optional[str] = None
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Load ALARM_ENDPOINT_URL from environment if not set
+        if self.ALARM_ENDPOINT_URL is None:
+            self.ALARM_ENDPOINT_URL = os.getenv("ALARM_ENDPOINT_URL")
 
     def get_logging_config(self) -> LoggingConfig:
         """Get logging configuration based on LOG_LEVEL setting."""
@@ -63,6 +84,8 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 def get_settings() -> Settings:

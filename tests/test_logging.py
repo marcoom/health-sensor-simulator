@@ -11,25 +11,27 @@ class TestLoggingConfiguration:
     """Test logging configuration with different log levels."""
 
     def test_default_log_level_is_info(self):
-        """Test that default LOG_LEVEL is INFO."""
-        settings = Settings()
-        assert settings.LOG_LEVEL == "INFO"
+        """Test that default LOG_LEVEL is INFO when no environment variables are set."""
+        # Clear environment variables to test true defaults
+        with patch.dict(os.environ, {}, clear=True):
+            settings = Settings()
+            assert settings.LOG_LEVEL == "INFO"
 
     def test_log_level_can_be_set_to_debug(self):
         """Test that LOG_LEVEL can be set to DEBUG."""
-        with patch.dict(os.environ, {"LOG_LEVEL": "DEBUG"}):
+        with patch.dict(os.environ, {"LOG_LEVEL": "DEBUG"}, clear=True):
             settings = Settings()
             assert settings.LOG_LEVEL == "DEBUG"
 
     def test_log_level_can_be_set_to_warning(self):
         """Test that LOG_LEVEL can be set to WARNING."""
-        with patch.dict(os.environ, {"LOG_LEVEL": "WARNING"}):
+        with patch.dict(os.environ, {"LOG_LEVEL": "WARNING"}, clear=True):
             settings = Settings()
             assert settings.LOG_LEVEL == "WARNING"
 
     def test_log_level_can_be_set_to_info(self):
         """Test that LOG_LEVEL can be set to INFO."""
-        with patch.dict(os.environ, {"LOG_LEVEL": "INFO"}):
+        with patch.dict(os.environ, {"LOG_LEVEL": "INFO"}, clear=True):
             settings = Settings()
             assert settings.LOG_LEVEL == "INFO"
 
@@ -45,8 +47,9 @@ class TestLoggingConfiguration:
 
     def test_logging_config_structure(self):
         """Test that logging configuration has correct structure."""
-        settings = Settings()
-        logging_config = settings.get_logging_config()
+        with patch.dict(os.environ, {}, clear=True):
+            settings = Settings()
+            logging_config = settings.get_logging_config()
         
         # Check required keys
         assert "version" in logging_config
@@ -71,9 +74,10 @@ class TestLoggingConfiguration:
 
     def test_get_settings_returns_settings_instance(self):
         """Test that get_settings returns a Settings instance."""
-        settings = get_settings()
-        assert isinstance(settings, Settings)
-        assert hasattr(settings, "LOG_LEVEL")
+        with patch.dict(os.environ, {}, clear=True):
+            settings = get_settings()
+            assert isinstance(settings, Settings)
+            assert hasattr(settings, "LOG_LEVEL")
 
     def test_invalid_log_level_not_allowed(self):
         """Test that invalid log levels are not allowed by pydantic validation."""
@@ -127,7 +131,7 @@ class TestStartupLogging:
         from io import StringIO
         
         for level in ["DEBUG", "INFO", "WARNING"]:
-            with patch.dict(os.environ, {"LOG_LEVEL": level}):
+            with patch.dict(os.environ, {"LOG_LEVEL": level}, clear=True):
                 # Capture log output
                 log_capture = StringIO()
                 handler = logging.StreamHandler(log_capture)

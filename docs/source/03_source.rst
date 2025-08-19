@@ -18,6 +18,16 @@ Schemas
 .. automodule:: src.app.api.schemas
     :members:
 
+Configuration
+-------------
+.. automodule:: src.app.config
+    :members:
+
+Constants
+---------
+.. automodule:: src.app.constants.health_params
+    :members:
+
 Services
 --------
 .. automodule:: src.app.services.anomaly_detector
@@ -26,10 +36,29 @@ Services
 .. automodule:: src.app.services.data_simulator
     :members:
 
-.. automodule:: src.app.services.alarm_client
+UI Components
+-------------
+.. automodule:: src.app.ui.streamlit_app
+    :members:
+
+.. automodule:: src.app.ui.config
+    :members:
+
+.. automodule:: src.app.ui.helpers
+    :members:
+
+.. automodule:: src.app.ui.visualization
     :members:
 
 Utils
 -----
 .. automodule:: src.app.utils.logging
+    :members:
+
+.. automodule:: src.app.utils.math_utils
+    :members:
+
+Version
+-------
+.. automodule:: src.app.version
     :members:

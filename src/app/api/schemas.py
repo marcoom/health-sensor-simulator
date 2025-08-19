@@ -1,6 +1,7 @@
 """Define response model for the endpoint version."""
 from pydantic import BaseModel, Field  # type: ignore
 from datetime import datetime, timezone
+from typing import Dict
 
 
 class VersionResponse(BaseModel):
@@ -21,3 +22,4 @@ class AnomalyResponse(BaseModel):
     """Response for anomaly detection endpoint."""
     ts: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     anomaly_score: float
+    vitals: Dict[str, float] = Field(..., description="Health parameter values at time of anomaly")
