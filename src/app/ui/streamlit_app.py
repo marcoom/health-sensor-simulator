@@ -4,16 +4,23 @@ This module provides the main Streamlit user interface for the health sensor
 simulator, including interactive controls and real-time data visualization.
 """
 
+import logging
+import logging.config
 import streamlit as st
 import time
 from typing import Dict
 
+from src.app.config import get_settings
 from src.app.services.data_simulator import generate_dummy_data, get_shared_data_generator, store_current_health_point
 from src.app.services.anomaly_detector import detect_anomaly
 from src.app.ui.config import SLIDER_CONFIG, DEFAULT_DISPERSION
 from src.app.ui.helpers import create_slider
 from src.app.ui.visualization import create_radial_scatter_plot
 from src.app.constants import UI_REFRESH_INTERVAL_SECONDS
+
+# Configure logging for Streamlit subprocess
+settings = get_settings()
+logging.config.dictConfig(settings.get_logging_config())
 
 st.set_page_config(
     page_title="Health Sensor Simulator",

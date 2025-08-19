@@ -1,20 +1,21 @@
 # Health Sensor Simulator
 
-**[COMPLETE]** **Current Status**: Fully functional health data simulator with interactive Streamlit UI and FastAPI backend. Real-time health data visualization with automatic refresh and configurable parameters.
-
 ## Project Description
 **Health Sensor Simulator** is a comprehensive health monitoring simulation platform built with **FastAPI** and **Streamlit**. It simulates realistic wearable health device data including heart rate, breathing rate, blood oxygen saturation, blood pressure, and body temperature. The system features an interactive web interface for real-time data visualization and parameter configuration.
 
 ![User Interface](./docs/diagrams/streamlit_ui_anomaly.png)
 
 ## Key Features
-- **FastAPI-based REST API** with OpenAPI documentation.
-- **Anomaly detection** using a trained Extended Isolation Forest model (`eif.joblib`).
-- **Data simulation** to generate realistic vital sign measurements.
-- **Outbound alarm client** for notifying external services when anomalies are found.
-- **Streamlit web interface** for configuring health variable parameters.
-- **Comprehensive unit tests** for API endpoints and anomaly detection model.
-- **Dockerized** for consistent deployment.
+- **FastAPI-based REST API** with OpenAPI documentation
+- **Dual Anomaly Detection** using Extended Isolation Forest (EIF) or distance-based methods
+- **Intelligent Alarm System** with HTTP POST notifications to external endpoints when anomalies are detected
+- **Trained EIF Model** (`eif.joblib`) for machine learning-based anomaly detection  
+- **Real-time Data Simulation** to generate realistic vital sign measurements
+- **Interactive Streamlit UI** for configuring health parameters and visualization
+- **Environment-based Configuration** with `.env` file support and variable precedence
+- **Comprehensive Test Suite** with 148 unit tests covering all functionality
+- **Inter-process Communication** for synchronized data between UI and API
+- **Dockerized Deployment** for consistent containerized environments
 
 ![System Architecture](./docs/diagrams/system_architecture.png)
 
@@ -34,6 +35,45 @@ The Health Sensor Simulator is part of a stack of applications that allow a user
 ### API Endpoints
 - `GET /api/v1/version` - Returns the service version
 - `GET /api/v1/vitals` - Returns the latest readings of all health variables
+
+### Anomaly Detection & Alarms
+- **Dual Detection Methods**: Extended Isolation Forest (EIF) or distance-based statistical analysis
+- **Automatic Alarms**: HTTP POST notifications sent to configurable endpoints when anomalies are detected
+- **Configurable Thresholds**: Separate thresholds for EIF (probability-based) and distance methods
+- **Real-time Processing**: Anomaly detection runs continuously on generated health data
+
+## Environment Configuration
+
+The application supports flexible configuration through environment variables and `.env` file. Configuration follows this precedence: **Environment Variables** > **`.env` file** > **Default values**.
+
+### Configuration Variables
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LOG_LEVEL` | `INFO` | Logging level (`DEBUG`, `INFO`, `WARNING`) |
+| `ANOMALY_DETECTION_METHOD` | `DISTANCE` | Detection method (`DISTANCE`, `EIF`) |
+| `EIF_THRESHOLD` | `0.4` | EIF anomaly threshold (0.0-1.0) |
+| `DISTANCE_THRESHOLD` | `3.8` | Distance method threshold |
+| `ALARM_ENDPOINT_URL` | `None` | HTTP endpoint for anomaly notifications |
+| `FASTAPI_HOST` | `0.0.0.0` | FastAPI server host |
+| `FASTAPI_PORT` | `8000` | FastAPI server port |
+| `STREAMLIT_HOST` | `0.0.0.0` | Streamlit server host |
+| `STREAMLIT_PORT` | `8501` | Streamlit server port |
+
+### Example .env File
+```bash
+# Health Sensor Simulator Environment Configuration
+
+# Alarm system configuration
+ALARM_ENDPOINT_URL=http://localhost:8080/alerts
+
+# Anomaly detection configuration  
+ANOMALY_DETECTION_METHOD=EIF
+EIF_THRESHOLD=0.4
+DISTANCE_THRESHOLD=3.8
+
+# Logging configuration
+LOG_LEVEL=INFO
+```
 
 ---
 
@@ -155,6 +195,7 @@ make docs-clean
 ## Project Structure
 ```text
 .
+├── .env                          # Environment configuration file
 ├── data/                         # Datasets and processed data
 │   └── processed/                # Processed health variables dataset
 ├── docs/                         # Project documentation (Sphinx, diagrams)
@@ -162,28 +203,36 @@ make docs-clean
 │   ├── app/
 │   │   ├── api/                  # FastAPI routes and schemas
 │   │   │   ├── routes.py         # API endpoints (/version, /vitals)
-│   │   │   └── schemas.py        # Pydantic models (VitalsResponse, etc.)
+│   │   │   └── schemas.py        # Pydantic models (VitalsResponse, AnomalyResponse)
 │   │   ├── constants/            # Health parameters and constants
+│   │   │   └── health_params.py  # Health variable specifications
 │   │   ├── services/             # Business logic layer
-│   │   │   ├── data_simulator.py # Health data generation + IPC
-│   │   │   ├── anomaly_detector.py # Anomaly detection
-│   │   │   └── alarm_client.py   # External alarm notifications
+│   │   │   ├── data_simulator.py # Health data generation and IPC
+│   │   │   ├── anomaly_detector.py # EIF & distance anomaly detection
+│   │   │   └── alarm_client.py   # HTTP alarm notifications
 │   │   ├── ui/                   # Streamlit UI components
 │   │   │   ├── streamlit_app.py  # Main Streamlit application
 │   │   │   ├── config.py         # UI configuration and sliders
 │   │   │   ├── helpers.py        # UI helper functions
 │   │   │   └── visualization.py  # Health data visualization
 │   │   ├── utils/                # Utility functions
-│   │   ├── config.py             # Application configuration
+│   │   │   ├── logging.py        # Logging configuration
+│   │   │   └── math_utils.py     # Mathematical utilities
+│   │   ├── config.py             # Application configuration management
 │   │   └── version.py            # Version information
 │   ├── models/                   # Trained ML models
 │   │   └── eif.joblib           # Extended Isolation Forest model
 │   └── main.py                   # Integrated application launcher
-├── notebooks/                    # Jupyter notebooks for data generation
-├── tests/                        # Comprehensive test suite (135+ tests)
+├── notebooks/                    # Jupyter notebooks for data generation and model training
+├── tests/                        # Comprehensive test suite (148 tests)
 │   ├── test_api.py              # API endpoint tests (21 tests)
+│   ├── test_config_environment.py # Environment configuration tests (18 tests)
+│   ├── test_logging.py          # Logging configuration tests
 │   ├── test_constants/          # Constants and parameters tests
-│   ├── test_services/           # Business logic tests
+│   ├── test_services/           # Business logic tests including alarm notifications
+│   │   ├── test_anomaly_detector.py # Anomaly detection tests (24 tests)
+│   │   ├── test_alarm_notifications.py # Alarm system tests (7 tests)
+│   │   └── test_data_simulator.py # Data simulation tests
 │   ├── test_ui/                 # UI component tests
 │   └── test_utils/              # Utility function tests
 └── requirements/                 # Dependencies (base, dev, docs)

@@ -17,6 +17,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from src.app.config import get_settings
+from src.app.api.routes import base_router as api_router
 
 # Create FastAPI app
 app = FastAPI(title="Health Sensor Simulator")
@@ -28,9 +29,10 @@ logger = logging.getLogger("src")
 
 # Log startup message
 logger.info(f"Starting {settings.PROJECT_NAME} with log level: {settings.LOG_LEVEL}")
+logger.info(f"ANOMALY_DETECTION_METHOD: {settings.ANOMALY_DETECTION_METHOD}")
+logger.info(f"ALARM_ENDPOINT_URL: {settings.ALARM_ENDPOINT_URL}")
 
-# Import and include routers
-from src.app.api.routes import base_router as api_router
+# Include routers
 app.include_router(api_router, prefix="/api/v1")
 
 
