@@ -33,7 +33,7 @@ The Health Sensor Simulator is part of a stack of applications that allow a user
 
 ### API Endpoints
 - `GET /api/v1/version` - Returns the service version
-- `GET /api/v1/vitals` - Returns the latest readings of all health variables (synchronized with Streamlit UI)
+- `GET /api/v1/vitals` - Returns the latest readings of all health variables
 
 ---
 

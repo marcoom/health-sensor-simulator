@@ -1,13 +1,13 @@
 Usage
 =====
 
-**[COMPLETE]** **Current Status**: Fully functional health sensor simulator with FastAPI backend, Streamlit UI, and comprehensive inter-process communication for synchronized health data.
+**Current Status**: Fully functional health sensor simulator with FastAPI backend, Streamlit UI, and comprehensive inter-process communication for synchronized health data.
 
 Current API Endpoints
 ---------------------
 
 - ``GET /api/v1/version`` - Returns the service version
-- ``GET /api/v1/vitals`` - Returns latest health readings (synchronized with Streamlit UI via file-based IPC)
+- ``GET /api/v1/vitals`` - Returns latest health readings
 
 Local Development
 -----------------
