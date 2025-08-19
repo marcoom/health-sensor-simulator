@@ -81,20 +81,8 @@ def _detect_anomaly_eif(health_point: Dict[str, float]) -> Tuple[bool, float]:
     feature_names = artifact["feature_names"]
     
     try:
-        # Create DataFrame with health point values, filling missing features with defaults
-        input_data = {}
-        for feature_name in feature_names:
-            if feature_name in health_point:
-                input_data[feature_name] = health_point[feature_name]
-            elif feature_name in HEALTH_PARAMS:
-                # Use default/mean value if feature missing
-                input_data[feature_name] = HEALTH_PARAMS[feature_name]["mean_rest"]
-            else:
-                logger.warning(f"Unknown feature {feature_name}, using 0.0")
-                input_data[feature_name] = 0.0
-        
         # Create DataFrame with correct feature order
-        X_new = pd.DataFrame([input_data], columns=feature_names)
+        X_new = pd.DataFrame([health_point], columns=feature_names)
         
         # Get anomaly score (higher = more anomalous in isotree)
         raw_score = float(model.predict(X_new)[0])
