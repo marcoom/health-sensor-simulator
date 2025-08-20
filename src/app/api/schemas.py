@@ -1,5 +1,5 @@
 """Define response model for the endpoint version."""
-from pydantic import BaseModel, Field  # type: ignore
+from pydantic import BaseModel, Field
 from datetime import datetime, timezone
 from typing import Dict
 

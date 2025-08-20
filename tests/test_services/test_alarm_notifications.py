@@ -95,7 +95,7 @@ class TestAlarmNotifications:
         anomaly_score = 0.85
         
         with AlarmServer() as server:
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 # Configure mock settings
                 settings = Settings()
                 settings.ALARM_ENDPOINT_URL = f"http://localhost:{server.port}/alerts"
@@ -131,7 +131,7 @@ class TestAlarmNotifications:
         # Set logger for the specific module
         caplog_debug.set_level(logging.DEBUG, logger="src.app.services.anomaly_detector")
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             # Configure mock settings with non-existent endpoint
             settings = Settings()
             settings.ALARM_ENDPOINT_URL = "http://localhost:9999/alerts"
@@ -152,7 +152,7 @@ class TestAlarmNotifications:
         # Set logger for the specific module
         caplog_debug.set_level(logging.DEBUG, logger="src.app.services.anomaly_detector")
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             with patch('src.app.services.anomaly_detector.requests.post') as mock_post:
                 # Configure mock settings
                 settings = Settings()
@@ -177,7 +177,7 @@ class TestAlarmNotifications:
         # Set logger for the specific module
         caplog_debug.set_level(logging.DEBUG, logger="src.app.services.anomaly_detector")
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             # Configure mock settings with no alarm URL
             settings = Settings()
             settings.ALARM_ENDPOINT_URL = None
@@ -205,7 +205,7 @@ class TestAlarmNotifications:
             def log_message(self, format, *args):
                 pass
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ALARM_ENDPOINT_URL = "http://localhost:8082/alerts"
             mock_settings.return_value = settings
@@ -237,7 +237,7 @@ class TestAlarmNotifications:
         }
         
         with AlarmServer() as server:
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 # Configure mock settings
                 settings = Settings()
                 settings.ALARM_ENDPOINT_URL = f"http://localhost:{server.port}/alerts"
@@ -273,7 +273,7 @@ class TestAlarmNotifications:
         }
         
         with AlarmServer() as server:
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 # Configure mock settings
                 settings = Settings()
                 settings.ALARM_ENDPOINT_URL = f"http://localhost:{server.port}/alerts"

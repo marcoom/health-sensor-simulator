@@ -6,9 +6,9 @@ import json
 from unittest.mock import patch
 from src.app.services.data_simulator import (
     store_current_health_point, 
-    _health_data_file,
     generate_health_point_with_variance,
-    get_default_health_values
+    get_default_health_values,
+    get_health_data_file_path
 )
 from src.app.constants import DEFAULT_DISPERSION
 
@@ -156,8 +156,8 @@ def test_get_vitals_variance(test_client):
 def test_vitals_file_storage_mechanism(test_client):
     """Test that vitals endpoint uses file storage for inter-process communication."""
     # Clean up any existing file before test
-    if os.path.exists(_health_data_file):
-        os.remove(_health_data_file)
+    if os.path.exists(get_health_data_file_path()):
+        os.remove(get_health_data_file_path())
     
     # First, store some data to trigger file creation
     test_health_point = {
@@ -171,14 +171,14 @@ def test_vitals_file_storage_mechanism(test_client):
     store_current_health_point(test_health_point)
     
     # Check that file was created
-    assert os.path.exists(_health_data_file), "Health data file should be created"
+    assert os.path.exists(get_health_data_file_path()), "Health data file should be created"
     
     # Make API call - should read from file
     response = test_client.get("/api/v1/vitals")
     assert response.status_code == 200
     
     # Verify file contains valid JSON
-    with open(_health_data_file, 'r') as f:
+    with open(get_health_data_file_path(), 'r') as f:
         file_data = json.load(f)
     
     # Check file contains all required health parameters
@@ -199,8 +199,8 @@ def test_vitals_file_storage_mechanism(test_client):
 def test_vitals_streamlit_api_synchronization(test_client):
     """Test that API returns same values that Streamlit stores."""
     # Clean up any existing file
-    if os.path.exists(_health_data_file):
-        os.remove(_health_data_file)
+    if os.path.exists(get_health_data_file_path()):
+        os.remove(get_health_data_file_path())
     
     # Simulate Streamlit UI setting custom health values
     custom_health_values = {
@@ -239,8 +239,8 @@ def test_vitals_streamlit_api_synchronization(test_client):
 def test_vitals_multiple_streamlit_updates(test_client):
     """Test that API reflects multiple rapid Streamlit updates correctly."""
     # Clean up any existing file
-    if os.path.exists(_health_data_file):
-        os.remove(_health_data_file)
+    if os.path.exists(get_health_data_file_path()):
+        os.remove(get_health_data_file_path())
     
     test_scenarios = [
         {'hr': 70.0, 'temp': 36.2, 'spo2': 99.0},  # Resting
@@ -282,8 +282,8 @@ def test_vitals_multiple_streamlit_updates(test_client):
 def test_vitals_extreme_values_synchronization(test_client):
     """Test synchronization with extreme but valid health values."""
     # Clean up any existing file
-    if os.path.exists(_health_data_file):
-        os.remove(_health_data_file)
+    if os.path.exists(get_health_data_file_path()):
+        os.remove(get_health_data_file_path())
     
     # Test with extreme but medically possible values
     extreme_values = {
@@ -323,8 +323,8 @@ def test_vitals_extreme_values_synchronization(test_client):
 def test_vitals_missing_file_fallback(test_client):
     """Test that vitals endpoint handles missing storage file gracefully."""
     # Ensure file doesn't exist and clear any cached values
-    if os.path.exists(_health_data_file):
-        os.remove(_health_data_file)
+    if os.path.exists(get_health_data_file_path()):
+        os.remove(get_health_data_file_path())
     
     # Clear any cached values in memory
     import src.app.services.data_simulator as ds_module
@@ -349,7 +349,7 @@ def test_vitals_corrupted_file_fallback(test_client):
     ds_module._last_health_point = None
     
     # Create a corrupted file
-    with open(_health_data_file, 'w') as f:
+    with open(get_health_data_file_path(), 'w') as f:
         f.write("{ invalid json content }")
     
     # API call should still work despite corrupted file
@@ -371,7 +371,7 @@ def test_vitals_empty_file_fallback(test_client):
     ds_module._last_health_point = None
     
     # Create an empty file
-    with open(_health_data_file, 'w') as f:
+    with open(get_health_data_file_path(), 'w') as f:
         f.write("")
     
     # API call should still work despite empty file
@@ -409,8 +409,8 @@ def test_vitals_file_permission_error_fallback(mock_open, mock_exists, test_clie
 def test_vitals_file_atomic_write_integrity(test_client):
     """Test that file writes are atomic and don't corrupt concurrent reads."""
     # Clean up any existing file
-    if os.path.exists(_health_data_file):
-        os.remove(_health_data_file)
+    if os.path.exists(get_health_data_file_path()):
+        os.remove(get_health_data_file_path())
     
     # Store initial value
     initial_values = get_default_health_values()
@@ -418,10 +418,10 @@ def test_vitals_file_atomic_write_integrity(test_client):
     store_current_health_point(initial_point)
     
     # Verify file exists and is readable
-    assert os.path.exists(_health_data_file)
+    assert os.path.exists(get_health_data_file_path())
     
     # Read directly from file to verify integrity
-    with open(_health_data_file, 'r') as f:
+    with open(get_health_data_file_path(), 'r') as f:
         file_data = json.load(f)
     
     # Ensure all required fields are present
@@ -443,8 +443,8 @@ def test_vitals_file_atomic_write_integrity(test_client):
 def test_vitals_concurrent_file_operations(test_client):
     """Test that concurrent store/read operations work correctly."""
     # Clean up any existing file
-    if os.path.exists(_health_data_file):
-        os.remove(_health_data_file)
+    if os.path.exists(get_health_data_file_path()):
+        os.remove(get_health_data_file_path())
     
     # Simulate rapid concurrent operations
     test_values = []

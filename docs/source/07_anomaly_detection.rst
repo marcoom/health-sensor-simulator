@@ -74,6 +74,7 @@ Machine Learning Approach
 The EIF method uses a pre-trained Extended Isolation Forest model to detect complex patterns and multivariate anomalies in health data.
 
 **Key Features:**
+
 - **Advanced Pattern Recognition**: Detects subtle anomalies that statistical methods might miss
 - **Multivariate Analysis**: Considers relationships between multiple health parameters simultaneously
 - **Pre-trained Model**: Uses ``src/models/eif.joblib`` trained on historical health data
@@ -87,6 +88,7 @@ The EIF method uses a pre-trained Extended Isolation Forest model to detect comp
    EIF_THRESHOLD=0.4
 
 **Model Details:**
+
 - **Algorithm**: Extended Isolation Forest with hyperplane cuts
 - **Library**: ``isotree`` (optimized implementation)
 - **Features**: All 6 health parameters
@@ -113,6 +115,7 @@ Statistical Approach
 The distance-based method calculates the radial distance of current health readings from the center point (normal resting values).
 
 **Key Features:**
+
 - **Fast Computation**: Real-time statistical analysis
 - **Interpretable Results**: Clear mathematical relationship to normal values
 - **No Training Required**: Uses predefined normal ranges
@@ -126,6 +129,7 @@ The distance-based method calculates the radial distance of current health readi
    DISTANCE_THRESHOLD=3.8
 
 **Algorithm:**
+
 1. Calculate center point using mean resting values for each parameter
 2. Compute radial distance from current readings to center point
 3. Compare distance to threshold
@@ -220,59 +224,6 @@ The alarm system includes robust error handling:
 - **Retry Logic**: Single retry attempt for failed requests
 - **Graceful Degradation**: Anomaly detection continues even if alarms fail
 
-Integration Examples
---------------------
-
-Webhook Endpoint
-~~~~~~~~~~~~~~~~
-
-Example webhook server to receive alarm notifications::
-
-    from flask import Flask, request, jsonify
-    
-    app = Flask(__name__)
-    
-    @app.route('/alerts', methods=['POST'])
-    def receive_alarm():
-        data = request.get_json()
-        
-        # Process anomaly data
-        timestamp = data['ts']
-        score = data['anomaly_score']
-        vitals = data['vitals']
-        
-        # Your alarm handling logic here
-        print(f"ANOMALY DETECTED at {timestamp}")
-        print(f"Score: {score}, Vitals: {vitals}")
-        
-        return jsonify({"status": "received"})
-
-Slack Integration
-~~~~~~~~~~~~~~~~~
-
-Example Slack webhook integration::
-
-    import requests
-    import json
-    
-    def forward_to_slack(anomaly_data):
-        slack_webhook = "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
-        
-        message = {
-            "text": f"🚨 Health Anomaly Detected!",
-            "attachments": [{
-                "color": "danger",
-                "fields": [
-                    {"title": "Anomaly Score", "value": str(anomaly_data['anomaly_score']), "short": True},
-                    {"title": "Time", "value": anomaly_data['ts'], "short": True},
-                    {"title": "Heart Rate", "value": f"{anomaly_data['vitals']['heart_rate']} bpm", "short": True},
-                    {"title": "Oxygen Sat", "value": f"{anomaly_data['vitals']['oxygen_saturation']}%", "short": True}
-                ]
-            }]
-        }
-        
-        requests.post(slack_webhook, json=message)
-
 Model Management
 ----------------
 
@@ -281,7 +232,7 @@ EIF Model Training
 
 The EIF model can be retrained with new data:
 
-1. **Prepare Training Data**: Health parameter datasets with normal/anomaly labels
+1. **Prepare Training Data**: Health parameter datasets with normal/anomaly labels. Can be generated with Use ``notebooks/01_generate_dataset.ipynb``
 2. **Train Model**: Use ``notebooks/02_anomaly_detection_model.ipynb``
 3. **Validate Performance**: Test on holdout dataset
 4. **Export Model**: Save to ``src/models/eif.joblib``
@@ -292,21 +243,6 @@ The EIF model can be retrained with new data:
 - Model must return probability scores (0.0-1.0)
 - Compatible with ``isotree`` library interface
 
-Model Validation
-~~~~~~~~~~~~~~~~~
-
-Validate model performance before deployment::
-
-    from src.app.services.anomaly_detector import _load_eif_model
-    
-    # Load and test model
-    model = _load_eif_model()
-    if model:
-        print("Model loaded successfully")
-        print(f"Features: {model['feature_names']}")
-        print(f"Threshold: {model['threshold']}")
-    else:
-        print("Model loading failed")
 
 Performance Considerations
 --------------------------

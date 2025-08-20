@@ -15,22 +15,14 @@ from src.app.utils.math_utils import (
 )
 
 
-def create_radial_scatter_plot(
-    df: pd.DataFrame, 
-    user_point: Optional[Dict[str, float]] = None
-) -> go.Figure:
-    """Create an interactive radial scatter plot showing health data distribution.
-    
-    This visualization maps 6-dimensional health data to a 2D radial plot where
-    distance from center represents the Mahalanobis-like distance from the mean
-    health parameters.
+def _prepare_plot_data(df: pd.DataFrame) -> Tuple[list, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Prepare data for radial scatter plot.
     
     Args:
         df: DataFrame containing health parameter columns
-        user_point: Optional dictionary with health parameter values for user input
         
     Returns:
-        Interactive Plotly figure showing health data distribution
+        Tuple of (parameter_names, all_x, all_y, all_radii, all_health_data, hover_data)
     """
     from sklearn.preprocessing import StandardScaler
     
@@ -68,8 +60,19 @@ def create_radial_scatter_plot(
     all_health_data = np.concatenate([health_data_matrix, center_data])
     hover_data = np.column_stack([all_radii, all_health_data])
     
-    # Create hover template with health parameter details
-    hover_template = (
+    return parameter_names, all_x, all_y, all_radii, all_health_data, hover_data
+
+
+def _create_hover_template(parameter_names: list) -> str:
+    """Create hover template for health data points.
+    
+    Args:
+        parameter_names: List of health parameter names
+        
+    Returns:
+        Hover template string for Plotly
+    """
+    return (
         "<b>Health Data Point</b><br>"
         "Distance from Mean: %{customdata[0]:.2f}<br>" +
         "<br>".join([
@@ -78,11 +81,19 @@ def create_radial_scatter_plot(
         ]) +
         "<extra></extra>"
     )
+
+
+def _add_health_data_trace(fig: go.Figure, all_x: np.ndarray, all_y: np.ndarray, 
+                          hover_data: np.ndarray, hover_template: str) -> None:
+    """Add main health data points to the plot.
     
-    # Initialize the plot figure
-    fig = go.Figure()
-    
-    # Add main health data points (lighter blue color)
+    Args:
+        fig: Plotly figure to add trace to
+        all_x: X coordinates
+        all_y: Y coordinates
+        hover_data: Data for hover information
+        hover_template: Template for hover text
+    """
     fig.add_trace(go.Scatter(
         x=all_x, 
         y=all_y, 
@@ -93,12 +104,14 @@ def create_radial_scatter_plot(
         text=["Health Reading"] * len(all_x),
         hovertemplate=hover_template
     ))
+
+
+def _add_center_point(fig: go.Figure) -> None:
+    """Add perfect health center point to the plot.
     
-    # Add user input point if provided
-    if user_point is not None:
-        _add_user_point_to_plot(fig, user_point, df, scaler, parameter_names)
-    
-    # Add center marker for "perfect health" at origin (0,0)
+    Args:
+        fig: Plotly figure to add center point to
+    """
     fig.add_trace(go.Scatter(
         x=[0], 
         y=[0], 
@@ -113,8 +126,48 @@ def create_radial_scatter_plot(
         text=["Perfect Health Center"],
         hovertemplate="<b>Perfect Health Center</b><br>Distance: 0.00<extra></extra>"
     ))
+
+
+def create_radial_scatter_plot(
+    df: pd.DataFrame, 
+    user_point: Optional[Dict[str, float]] = None
+) -> go.Figure:
+    """Create an interactive radial scatter plot showing health data distribution.
     
-    # Configure plot layout (remove title, move legend to upper-right)
+    This visualization maps 6-dimensional health data to a 2D radial plot where
+    distance from center represents the Mahalanobis-like distance from the mean
+    health parameters.
+    
+    Args:
+        df: DataFrame containing health parameter columns
+        user_point: Optional dictionary with health parameter values for user input
+        
+    Returns:
+        Interactive Plotly figure showing health data distribution
+    """
+    # Prepare all plot data
+    parameter_names, all_x, all_y, all_radii, all_health_data, hover_data = _prepare_plot_data(df)
+    
+    # Create hover template
+    hover_template = _create_hover_template(parameter_names)
+    
+    # Initialize the plot figure
+    fig = go.Figure()
+    
+    # Add main health data points
+    _add_health_data_trace(fig, all_x, all_y, hover_data, hover_template)
+    
+    # Add user input point if provided
+    if user_point is not None:
+        from sklearn.preprocessing import StandardScaler
+        scaler = StandardScaler()
+        scaler.fit(df[parameter_names].values)
+        _add_user_point_to_plot(fig, user_point, df, scaler, parameter_names)
+    
+    # Add center marker for "perfect health"
+    _add_center_point(fig)
+    
+    # Configure plot layout
     fig.update_layout(
         xaxis_title="x = r · cos(θ)",
         yaxis_title="y = r · sin(θ)",
