@@ -11,7 +11,7 @@ import time
 from typing import Dict
 
 from src.app.config import get_settings
-from src.app.services.data_simulator import generate_dummy_data, get_shared_data_generator, store_current_health_point
+from src.app.services.data_simulator import generate_dummy_data, generate_health_point_with_variance, store_current_health_point
 from src.app.services.anomaly_detector import detect_anomaly
 from src.app.ui.config import SLIDER_CONFIG, DEFAULT_DISPERSION
 from src.app.ui.helpers import create_slider
@@ -42,9 +42,7 @@ def get_dummy_dataset():
     """
     return generate_dummy_data()
 
-# Initialize session state and data generator (use shared instance)
-if 'data_generator' not in st.session_state:
-    st.session_state.data_generator = get_shared_data_generator()
+# Initialize session state
 if 'last_auto_update' not in st.session_state:
     st.session_state.last_auto_update = time.time()
 
@@ -76,19 +74,18 @@ if st.sidebar.button("Reset", use_container_width=True, type="primary"):
             del st.session_state[key]
     st.rerun()
 
-# Generate health data point
-data_generator = st.session_state.data_generator
+# Generate health data point (reuse settings from top of file)
 current_time = time.time()
 time_since_last_update = current_time - st.session_state.last_auto_update
 
 # Check if we need to generate a new point and update timestamp
 should_refresh = False
-if time_since_last_update >= data_generator.settings.DATA_GENERATION_INTERVAL_SECONDS:
-    health_point = data_generator.generate_new_health_point(health_values, dispersion)
+if time_since_last_update >= settings.DATA_GENERATION_INTERVAL_SECONDS:
+    health_point = generate_health_point_with_variance(health_values, dispersion)
     st.session_state.last_auto_update = current_time
     should_refresh = True
 else:
-    health_point = data_generator.get_current_health_point(health_values, dispersion)
+    health_point = generate_health_point_with_variance(health_values, dispersion)
 
 # Store the generated health point in shared memory for API access
 store_current_health_point(health_point)
@@ -113,6 +110,6 @@ else:
 # Single auto-refresh point
 if should_refresh:
     st.rerun()
-elif time_since_last_update < data_generator.settings.DATA_GENERATION_INTERVAL_SECONDS:
+elif time_since_last_update < settings.DATA_GENERATION_INTERVAL_SECONDS:
     time.sleep(UI_REFRESH_INTERVAL_SECONDS)
     st.rerun()

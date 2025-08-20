@@ -3,7 +3,7 @@ Usage
 
 Health Sensor Simulator is a production-ready health monitoring simulation platform with dual anomaly detection methods, intelligent alarm system, and comprehensive configuration options.
 
-Current API Endpoints
+API Endpoints
 ---------------------
 
 - ``GET /api/v1/version`` - Returns the service version
@@ -56,10 +56,10 @@ Running the Integrated Service
 5. **Test the API**::
 
     $ curl http://localhost:8000/api/v1/version
-    # Expected response: {"version":"0.1.0"}
+    # Expected response: {"version":"1.0.0"}
     
     $ curl http://localhost:8000/api/v1/vitals
-    # Expected response: {"ts":"2024-01-01T12:00:00Z","heart_rate":80,"oxygen_saturation":98,...}
+    # Expected response: {"ts":"2025-01-01T12:00:00Z","heart_rate":80,"oxygen_saturation":98,...}
 
 Environment Configuration
 :::::::::::::::::::::::::
@@ -112,24 +112,6 @@ Configuration follows this precedence: **Environment Variables** > **``.env`` fi
      - Integer
      - Streamlit server port
 
-.env File Configuration
-+++++++++++++++++++++++
-
-Create a ``.env`` file in the project root directory::
-
-    # Health Sensor Simulator Environment Configuration
-    
-    # Alarm system configuration
-    ALARM_ENDPOINT_URL=http://localhost:8080/alerts
-    
-    # Anomaly detection configuration
-    ANOMALY_DETECTION_METHOD=EIF
-    EIF_THRESHOLD=0.4
-    DISTANCE_THRESHOLD=3.8
-    
-    # Logging configuration
-    LOG_LEVEL=INFO
-
 Anomaly Detection & Alarms
 :::::::::::::::::::::::::::
 
@@ -143,7 +125,7 @@ The system supports two anomaly detection methods:
 
 **Distance-based Detection**
   - Statistical analysis using radial distance from normal values
-  - Threshold: distance from center point
+  - Threshold: distance from center point (Mahalanobis)
   - Fast and interpretable results
 
 **Alarm Notifications**
@@ -165,15 +147,28 @@ The system supports two anomaly detection methods:
 Docker Deployment
 :::::::::::::::::
 
+The Health Sensor Simulator is available as a pre-built Docker image on Docker Hub: `marcoom/health-sensor-simulator <https://hub.docker.com/r/marcoom/health-sensor-simulator>`_
+
+**Using Pre-built Image**::
+
+    $ docker run --env-file .env -p 8000:8000 -p 8501:8501 marcoom/health-sensor-simulator
+
+**Building and Running Locally**:
+
 1. **Using Makefile commands (recommended)**::
 
-    $ make docker-build
-    $ make docker-run
+    $ make docker-build        # Build the image
+    $ make docker-run          # Run container with .env file configuration
+    $ make docker-remove       # Remove the image
 
 2. **Using Docker directly**::
 
     $ docker build -t health-sensor-simulator .
-    $ docker run -p 8000:8000 health-sensor-simulator
+    $ docker run --env-file .env -p 8000:8000 -p 8501:8501 health-sensor-simulator
+    $ docker image rm -f health-sensor-simulator  # Remove image
+
+.. note::
+   The ``make docker-run`` command automatically reads configuration from your ``.env`` file and maps the ports specified in the environment variables.
 
 
 Development & Testing
@@ -189,10 +184,6 @@ Running Tests
 2. **Run tests with coverage report**::
 
     $ make test-coverage
-
-3. **Run tests manually with pytest**::
-
-    $ pytest tests/ -v
 
 Development Setup
 +++++++++++++++++
@@ -219,8 +210,11 @@ Building Documentation
 
     $ make docs-pdf
 
-3. **Clean documentation build files**::
+3. **Build both HTML and PDF documentation**::
+
+    $ make docs
+43. **Clean documentation build files**::
 
     $ make docs-clean
 
-You can find the built documentation in the folder ``docs/build/html``.
+You can find the built documentation in the folder ``docs/build/``.

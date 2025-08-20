@@ -1,36 +1,28 @@
 # Health Sensor Simulator
 
 ## Project Description
-**Health Sensor Simulator** is a comprehensive health monitoring simulation platform built with **FastAPI** and **Streamlit**. It simulates realistic wearable health device data including heart rate, breathing rate, blood oxygen saturation, blood pressure, and body temperature. The system features an interactive web interface for real-time data visualization and parameter configuration.
+The **Health Sensor Simulator** is a health monitoring simulation platform built with **FastAPI** and **Streamlit**.
+It generates realistic data for vital signs (heart rate, breathing rate, oxygen saturation, blood pressure, body temperature) and provides both an API and a web interface for visualization and configuration.
 
 ![User Interface](./docs/diagrams/streamlit_ui_anomaly.png)
 
 ## Key Features
-- **FastAPI-based REST API** with OpenAPI documentation
-- **Dual Anomaly Detection** using Extended Isolation Forest (EIF) or distance-based methods
-- **Intelligent Alarm System** with HTTP POST notifications to external endpoints when anomalies are detected
-- **Trained EIF Model** (`eif.joblib`) for machine learning-based anomaly detection  
+- **FastAPI REST API** with OpenAPI documentation
+- **Anomaly Detection** using an Extended Isolation Forest (EIF) model or distance-based methods
+- **Alarm System** with HTTP POST notifications to external endpoints when anomalies are detected
 - **Real-time Data Simulation** to generate realistic vital sign measurements
-- **Interactive Streamlit UI** for configuring health parameters and visualization
-- **Environment-based Configuration** with `.env` file support and variable precedence
-- **Comprehensive Test Suite** with 148 unit tests covering all functionality
+- **Streamlit UI** allows to configure health parameters for real time vitals generation. Also shows real-time visualizations of the generated data.
+- **Test Suite** aiming to cover the core functionalities
 - **Inter-process Communication** for synchronized data between UI and API
 - **Dockerized Deployment** for consistent containerized environments
 
 ![System Architecture](./docs/diagrams/system_architecture.png)
 
-The Health Sensor Simulator is part of a stack of applications that allow a user to track the metrics and get notified of alarms in real time, and analyze historical values, using intuitive dashboards. The stack's project is located in this [link](https://github.com/marcoom/health-anomaly-detector-stack).
+The Health Sensor Simulator is a core component of a larger monitoring ecosystem designed for real-time and historical health data analysis. While the simulator generates realistic vital sign readings and anomaly alerts, the broader stack -available at [Health Anomaly Detector Stack](https://github.com/marcoom/health-anomaly-detector-stack)- extends these capabilities with Telegraf, InfluxDB, and Grafana. In this setup, Telegraf continuously collects sensor data and alarm notifications, storing them in a time-series database (InfluxDB) for persistence. Grafana then transforms this information into intuitive dashboards, allowing users to monitor live metrics, review historical trends, and visualize alerts in a clear, actionable way. Together, this ecosystem provides an end-to-end solution—from simulation and anomaly detection to visualization and long-term analysis—showcasing how health data can be effectively tracked and understood.
 
 ![Health Anomaly Detector Stack](./docs/diagrams/compose_app.png)
 
 ## Current Functionality
-### Working Features
-- **FastAPI REST API** with OpenAPI documentation
-- **Streamlit Web Interface** with interactive health parameter controls
-- **Real-time Data Generation** with configurable variance and automatic refresh
-- **Health Data Visualization** using radial distance plots
-- **Parameter Validation** with realistic health value ranges
-- **Integrated Launcher** running both services from single command
 
 ### API Endpoints
 - `GET /api/v1/version` - Returns the service version
@@ -126,26 +118,39 @@ uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```bash
 # Test the version endpoint
 curl http://localhost:8000/api/v1/version
-# Expected response: {"version":"0.1.0"}
+# Expected response: {"version":"1.0.0"}
 
 # Test the vitals endpoint
 curl http://localhost:8000/api/v1/vitals
-# Expected response: {"ts":"2024-01-01T12:00:00Z","heart_rate":80,"oxygen_saturation":98,...}
+# Expected response: {"ts":"2025-01-01T12:00:00Z","heart_rate":80,"oxygen_saturation":98,...}
 ```  
 
 ---
 
 ### Running with Docker
-Build and run the container:
+
+The Health Sensor Simulator is available as a pre-built Docker image on Docker Hub: [marcoom/health-sensor-simulator](https://hub.docker.com/r/marcoom/health-sensor-simulator)
+
+#### Using Pre-built Image
+```bash
+# Pull and run the latest image with .env file
+docker run --env-file .env -p 8000:8000 -p 8501:8501 marcoom/health-sensor-simulator
+```
+
+#### Building and Running Locally
 ```bash
 # Using Makefile commands (recommended)
-make docker-build
-make docker-run
+make docker-build        # Build the image
+make docker-run          # Run container with .env file configuration
+make docker-remove       # Remove the image
 
 # OR using Docker directly
 docker build -t health-sensor-simulator .
-docker run -p 8000:8000 health-sensor-simulator
+docker run --env-file .env -p 8000:8000 -p 8501:8501 health-sensor-simulator
+docker image rm -f health-sensor-simulator  # Remove image
 ```
+
+**Note**: The `make docker-run` command automatically reads configuration from your `.env` file and maps the ports specified in the environment variables.
 
 ---
 
@@ -195,7 +200,7 @@ make docs-clean
 ## Project Structure
 ```text
 .
-├── .env                          # Environment configuration file
+├── .env                          # Environment configuration file (optional)
 ├── data/                         # Datasets and processed data
 │   └── processed/                # Processed health variables dataset
 ├── docs/                         # Project documentation (Sphinx, diagrams)
@@ -205,18 +210,17 @@ make docs-clean
 │   │   │   ├── routes.py         # API endpoints (/version, /vitals)
 │   │   │   └── schemas.py        # Pydantic models (VitalsResponse, AnomalyResponse)
 │   │   ├── constants/            # Health parameters and constants
-│   │   │   └── health_params.py  # Health variable specifications
+│   │   │   └── health_params.py  # Health variable specifications & utility functions
 │   │   ├── services/             # Business logic layer
 │   │   │   ├── data_simulator.py # Health data generation and IPC
-│   │   │   ├── anomaly_detector.py # EIF & distance anomaly detection
-│   │   │   └── alarm_client.py   # HTTP alarm notifications
+│   │   │   └── anomaly_detector.py # EIF & distance anomaly detection with HTTP alarm notifications
 │   │   ├── ui/                   # Streamlit UI components
 │   │   │   ├── streamlit_app.py  # Main Streamlit application
 │   │   │   ├── config.py         # UI configuration and sliders
 │   │   │   ├── helpers.py        # UI helper functions
 │   │   │   └── visualization.py  # Health data visualization
 │   │   ├── utils/                # Utility functions
-│   │   │   ├── logging.py        # Logging configuration
+│   │   │   ├── logging.py        # Logging configuration and utilities
 │   │   │   └── math_utils.py     # Mathematical utilities
 │   │   ├── config.py             # Application configuration management
 │   │   └── version.py            # Version information
@@ -224,14 +228,14 @@ make docs-clean
 │   │   └── eif.joblib           # Extended Isolation Forest model
 │   └── main.py                   # Integrated application launcher
 ├── notebooks/                    # Jupyter notebooks for data generation and model training
-├── tests/                        # Comprehensive test suite (148 tests)
-│   ├── test_api.py              # API endpoint tests (21 tests)
-│   ├── test_config_environment.py # Environment configuration tests (18 tests)
+├── tests/                        # Comprehensive test suite
+│   ├── test_api.py              # API endpoint tests
+│   ├── test_config_environment.py # Environment configuration tests
 │   ├── test_logging.py          # Logging configuration tests
 │   ├── test_constants/          # Constants and parameters tests
 │   ├── test_services/           # Business logic tests including alarm notifications
-│   │   ├── test_anomaly_detector.py # Anomaly detection tests (24 tests)
-│   │   ├── test_alarm_notifications.py # Alarm system tests (7 tests)
+│   │   ├── test_anomaly_detector.py # Anomaly detection tests
+│   │   ├── test_alarm_notifications.py # Alarm system tests
 │   │   └── test_data_simulator.py # Data simulation tests
 │   ├── test_ui/                 # UI component tests
 │   └── test_utils/              # Utility function tests

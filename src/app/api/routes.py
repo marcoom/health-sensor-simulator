@@ -2,7 +2,6 @@
 from typing import Any
 from fastapi import APIRouter, HTTPException
 from src.app.api.schemas import VersionResponse, VitalsResponse
-from datetime import datetime, timezone
 from src.app.version import __version__
 from src.app.services.data_simulator import get_stored_health_point
 

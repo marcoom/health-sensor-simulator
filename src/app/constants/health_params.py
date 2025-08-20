@@ -4,7 +4,7 @@ This module contains all health-related constants including parameter ranges,
 default values, and timing configurations for the health sensor simulator.
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 # Health parameters for different physiological states
 HEALTH_PARAMS: Dict[str, Dict[str, Any]] = {
@@ -84,3 +84,61 @@ SLIDER_TO_PARAM_MAPPING: Dict[str, str] = {
     "diastolic_bp": "blood_pressure_diastolic",
     "body_temperature": "body_temperature"
 }
+
+
+def get_health_param_mean(param_name: str) -> float:
+    """Get mean resting value for a health parameter.
+    
+    Args:
+        param_name: Name of the health parameter
+        
+    Returns:
+        Mean resting value for the parameter
+        
+    Raises:
+        KeyError: If parameter name is not found
+    """
+    return HEALTH_PARAMS[param_name]["mean_rest"]
+
+
+def get_health_param_std(param_name: str) -> float:
+    """Get standard deviation resting value for a health parameter.
+    
+    Args:
+        param_name: Name of the health parameter
+        
+    Returns:
+        Standard deviation for the parameter at rest
+        
+    Raises:
+        KeyError: If parameter name is not found
+    """
+    return HEALTH_PARAMS[param_name]["std_rest"]
+
+
+def get_health_param_range(param_name: str) -> Tuple[float, float]:
+    """Get min and max resting range for a health parameter.
+    
+    Args:
+        param_name: Name of the health parameter
+        
+    Returns:
+        Tuple of (min_value, max_value) for the parameter
+        
+    Raises:
+        KeyError: If parameter name is not found
+    """
+    param_data = HEALTH_PARAMS[param_name]
+    return param_data["min_rest"], param_data["max_rest"]
+
+
+def create_health_center_point(param_names: list) -> Dict[str, float]:
+    """Create a center point using mean resting values for given parameters.
+    
+    Args:
+        param_names: List of health parameter names
+        
+    Returns:
+        Dictionary mapping parameter names to their mean resting values
+    """
+    return {param_name: get_health_param_mean(param_name) for param_name in param_names}

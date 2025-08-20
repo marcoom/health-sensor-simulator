@@ -1,15 +1,8 @@
 """Base settings class contains only important fields."""
-# mypy: ignore-errors
 import os
 from typing import Dict, Literal, Optional
 from pydantic import BaseModel, BaseSettings
 from src.app.utils.logging import StandardFormatter
-
-try:
-    from dotenv import load_dotenv
-    load_dotenv()  # Load .env file if it exists
-except ImportError:
-    pass  # dotenv not available, rely on system environment variables
 
 
 class LoggingConfig(BaseModel):

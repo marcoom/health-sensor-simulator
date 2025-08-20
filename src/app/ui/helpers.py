@@ -3,7 +3,7 @@
 import streamlit as st
 from typing import Dict, Any, Union
 
-from src.app.constants import HEALTH_PARAMS
+from src.app.constants import get_health_param_mean, get_health_param_range
 
 
 
@@ -25,13 +25,14 @@ def create_slider(container: Any, config: Dict[str, Union[str, type]]) -> Union[
     
     # Initialize session state with default value if not present
     if session_key not in st.session_state:
-        default_value = HEALTH_PARAMS[param_key]["mean_rest"]
+        default_value = get_health_param_mean(param_key)
         st.session_state[session_key] = value_type(default_value)
     
     # Prepare slider arguments with proper typing
+    min_val, max_val = get_health_param_range(param_key)
     slider_kwargs = {
-        "min_value": value_type(HEALTH_PARAMS[param_key]["min_rest"]),
-        "max_value": value_type(HEALTH_PARAMS[param_key]["max_rest"]),
+        "min_value": value_type(min_val),
+        "max_value": value_type(max_val),
         "key": session_key
     }
     

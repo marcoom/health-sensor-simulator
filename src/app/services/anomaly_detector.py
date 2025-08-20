@@ -4,7 +4,7 @@ This module provides anomaly detection functionality for health sensor readings,
 supporting both distance-based threshold approach and Extended Isolation Forest.
 """
 
-import logging
+from src.app.utils.logging import get_logger
 import os
 from datetime import datetime, timezone
 from typing import Dict, Tuple, Optional, Any
@@ -12,14 +12,35 @@ import requests
 import pandas as pd
 from joblib import load
 from src.app.utils.math_utils import calculate_radial_distance
-from src.app.constants import HEALTH_PARAMS
+from src.app.constants import create_health_center_point
 from src.app.config import get_settings
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
+class _AnomalyDetectionCache:
+    """Cache for loaded EIF model and settings to reduce global variables."""
+    
+    def __init__(self):
+        self.eif_model: Optional[Dict[str, Any]] = None
+        self.settings = None
+    
+    def get_eif_model(self) -> Optional[Dict[str, Any]]:
+        """Get cached EIF model."""
+        return self.eif_model
+    
+    def set_eif_model(self, model: Dict[str, Any]) -> None:
+        """Set cached EIF model."""
+        self.eif_model = model
+    
+    def get_settings(self):
+        """Get cached settings to avoid repeated get_settings() calls."""
+        if self.settings is None:
+            self.settings = get_settings()
+        return self.settings
 
 
-# Cache for loaded EIF model
-_eif_model_cache: Optional[Dict[str, Any]] = None
+# Single cache instance
+_cache = _AnomalyDetectionCache()
 
 
 def _load_eif_model() -> Optional[Dict[str, Any]]:
@@ -29,10 +50,9 @@ def _load_eif_model() -> Optional[Dict[str, Any]]:
         Optional[Dict[str, Any]]: Model artifact containing model, threshold, and feature names,
                                  or None if loading fails
     """
-    global _eif_model_cache
-    
-    if _eif_model_cache is not None:
-        return _eif_model_cache
+    cached_model = _cache.get_eif_model()
+    if cached_model is not None:
+        return cached_model
     
         
     model_path = os.path.join(os.path.dirname(__file__), "..", "..", "models", "eif.joblib")
@@ -52,8 +72,8 @@ def _load_eif_model() -> Optional[Dict[str, Any]]:
             logger.error(f"Invalid EIF model artifact - missing keys: {required_keys}")
             return None
             
-        _eif_model_cache = artifact
-        return _eif_model_cache
+        _cache.set_eif_model(artifact)
+        return artifact
         
     except Exception as e:
         logger.error(f"Failed to load EIF model: {e}")
@@ -88,7 +108,7 @@ def _detect_anomaly_eif(health_point: Dict[str, float]) -> Tuple[bool, float]:
         raw_score = float(model.predict(X_new)[0])
         
         # Use manual threshold from config instead of model threshold
-        settings = get_settings()
+        settings = _cache.get_settings()
         manual_threshold = settings.EIF_THRESHOLD
         
         # Determine if anomaly
@@ -131,16 +151,14 @@ def _detect_anomaly_distance(health_point: Dict[str, float], threshold: Optional
     """
     # Use config threshold if none provided
     if threshold is None:
-        settings = get_settings()
+        settings = _cache.get_settings()
         threshold = settings.DISTANCE_THRESHOLD
     # Create center point from mean resting values
-    center_point = {}
-    for param_name in health_point.keys():
-        if param_name in HEALTH_PARAMS:
-            center_point[param_name] = HEALTH_PARAMS[param_name]["mean_rest"]
-        else:
-            # If parameter not in HEALTH_PARAMS, use the value itself as center
-            center_point[param_name] = health_point[param_name]
+    try:
+        center_point = create_health_center_point(list(health_point.keys()))
+    except KeyError:
+        # Fallback: if any parameter not found, use the value itself as center
+        center_point = dict(health_point)
     
     # Handle empty health point
     if not health_point:
@@ -178,7 +196,7 @@ def _send_anomaly_alarm(health_point: Dict[str, float], anomaly_score: float) ->
     Returns:
         bool: True if alarm was sent successfully, False otherwise
     """
-    settings = get_settings()
+    settings = _cache.get_settings()
     
     if not settings.ALARM_ENDPOINT_URL:
         logger.debug("No ALARM_ENDPOINT_URL configured, skipping alarm notification")
@@ -234,7 +252,7 @@ def detect_anomaly(health_point: Dict[str, float]) -> Tuple[bool, float]:
             - is_anomaly: True if the point is anomalous (outlier), False otherwise
             - anomaly_score: Score between 0.0 and 1.0 representing anomaly certainty
     """
-    settings = get_settings()
+    settings = _cache.get_settings()
     
     # Choose detection method based on configuration
     if settings.ANOMALY_DETECTION_METHOD == "EIF":

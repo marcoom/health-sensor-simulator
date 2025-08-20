@@ -2,6 +2,19 @@
 import logging
 
 
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance with standardized configuration.
+    
+    This function is thread-safe and can be used in both FastAPI and Streamlit contexts.
+    The logger configuration should be set up at the application level.
+    
+    Args:
+        name: Name for the logger (typically __name__)
+        
+    Returns:
+        Configured logger instance
+    """
+    return logging.getLogger(name)
 
 
 class StandardFormatter(logging.Formatter):

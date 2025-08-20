@@ -86,7 +86,11 @@ docker-build:
 
 docker-run:
 	@echo "Running Docker container..."
-	docker run -it --rm health-sensor-simulator
+	docker run -it --rm \
+		--env-file .env \
+		-p $(shell grep FASTAPI_PORT .env | cut -d '=' -f2):$(shell grep FASTAPI_PORT .env | cut -d '=' -f2) \
+		-p $(shell grep STREAMLIT_PORT .env | cut -d '=' -f2):$(shell grep STREAMLIT_PORT .env | cut -d '=' -f2) \
+		health-sensor-simulator
 
 docker-remove:
 	@echo "Removing Docker image..."

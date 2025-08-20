@@ -7,8 +7,7 @@ from unittest.mock import patch, MagicMock
 
 from src.app.services.data_simulator import (
     generate_dummy_data,
-    generate_health_point_with_variance,
-    HealthDataGenerator
+    generate_health_point_with_variance
 )
 from src.app.constants import HEALTH_PARAMS
 
@@ -133,41 +132,6 @@ class TestGenerateHealthPointWithVariance:
         assert "body_temperature" in result
 
 
-class TestHealthDataGenerator:
-    """Test cases for HealthDataGenerator class."""
-
-    def test_health_data_generator_initialization(self):
-        """Test that HealthDataGenerator initializes correctly."""
-        generator = HealthDataGenerator()
-        
-        assert generator.settings is not None
-        assert generator.last_generation_time is None
-        assert generator.current_health_point is None
-
-
-    def test_generate_new_health_point(self):
-        """Test generate_new_health_point method."""
-        generator = HealthDataGenerator()
-        health_values = {"heart_rate": 80.0}
-        variance_multiplier = 0.5
-        
-        with patch('time.time', return_value=1000.0):
-            result = generator.generate_new_health_point(health_values, variance_multiplier)
-            
-            assert isinstance(result, dict)
-            assert generator.last_generation_time == 1000.0
-            assert generator.current_health_point == result
-
-    def test_get_current_health_point(self):
-        """Test get_current_health_point method."""
-        generator = HealthDataGenerator()
-        health_values = {"heart_rate": 80.0}
-        variance_multiplier = 0.5
-        
-        result = generator.get_current_health_point(health_values, variance_multiplier)
-        
-        assert isinstance(result, dict)
-        assert "heart_rate" in result
 
 
 

@@ -88,7 +88,7 @@ class TestDetectAnomaly:
         }
         
         # Test with default threshold via mock settings
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "DISTANCE"
             settings.DISTANCE_THRESHOLD = 3.8  # Default threshold
@@ -98,7 +98,7 @@ class TestDetectAnomaly:
             is_anomaly_default, score_default = detect_anomaly(health_point)
         
         # Test with lower threshold
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "DISTANCE"
             settings.DISTANCE_THRESHOLD = 2.0  # Lower threshold
@@ -196,7 +196,7 @@ class TestDetectAnomaly:
         health_point = {param: spec["mean_rest"] for param, spec in HEALTH_PARAMS.items()}
         
         for threshold_val, description in test_cases:
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 settings = Settings()
                 settings.ANOMALY_DETECTION_METHOD = "DISTANCE"
                 settings.DISTANCE_THRESHOLD = threshold_val
@@ -227,7 +227,7 @@ class TestEIFAnomalyDetection:
             "body_temperature": 37.5
         }
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "EIF"
             settings.EIF_THRESHOLD = 0.5
@@ -247,12 +247,11 @@ class TestEIFAnomalyDetection:
     
     def test_eif_model_loading_cache(self):
         """Test EIF model loading and caching behavior."""
-        from src.app.services.anomaly_detector import _load_eif_model, _eif_model_cache
+        from src.app.services.anomaly_detector import _load_eif_model, _cache
         from unittest.mock import patch, MagicMock
-        import src.app.services.anomaly_detector as anomaly_module
         
         # Reset cache
-        anomaly_module._eif_model_cache = None
+        _cache.eif_model = None
         
         # Mock successful model loading
         mock_artifact = {
@@ -298,7 +297,7 @@ class TestEIFAnomalyDetection:
         }
         
         with patch('src.app.services.anomaly_detector._load_eif_model', return_value=mock_artifact):
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 settings = MagicMock()
                 settings.EIF_THRESHOLD = 0.5
                 mock_settings.return_value = settings
@@ -336,7 +335,7 @@ class TestEIFAnomalyDetection:
         with patch('src.app.services.anomaly_detector._load_eif_model', return_value=mock_artifact):
             # Test with low threshold - should be anomaly
             mock_model.predict.return_value = [0.6]
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 settings = MagicMock()
                 settings.EIF_THRESHOLD = 0.4  # Lower than score
                 mock_settings.return_value = settings
@@ -346,7 +345,7 @@ class TestEIFAnomalyDetection:
             
             # Test with high threshold - should not be anomaly
             mock_model.predict.return_value = [0.6]
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 settings = MagicMock()
                 settings.EIF_THRESHOLD = 0.8  # Higher than score
                 mock_settings.return_value = settings
@@ -369,7 +368,7 @@ class TestEIFAnomalyDetection:
         }
         
         with patch('src.app.services.anomaly_detector._load_eif_model', return_value=mock_artifact):
-            with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+            with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
                 settings = MagicMock()
                 settings.EIF_THRESHOLD = 0.5
                 mock_settings.return_value = settings
@@ -406,7 +405,7 @@ class TestAnomalyDetectionMethodSelection:
             "body_temperature": 36.7
         }
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "DISTANCE"
             settings.DISTANCE_THRESHOLD = 3.8
@@ -445,7 +444,7 @@ class TestAnomalyDetectionMethodSelection:
                             "blood_pressure_systolic", "blood_pressure_diastolic", "body_temperature"]
         }
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "EIF"
             settings.EIF_THRESHOLD = 0.5
@@ -476,7 +475,7 @@ class TestAnomalyDetectionMethodSelection:
             "body_temperature": 37.5
         }
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "EIF"
             settings.EIF_THRESHOLD = 0.5
@@ -509,7 +508,7 @@ class TestAnomalyDetectionMethodSelection:
         }
         
         # Test with DISTANCE method
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "DISTANCE"
             settings.DISTANCE_THRESHOLD = 3.8
@@ -529,7 +528,7 @@ class TestAnomalyDetectionMethodSelection:
                             "blood_pressure_systolic", "blood_pressure_diastolic", "body_temperature"]
         }
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "EIF"
             settings.EIF_THRESHOLD = 0.5
@@ -555,7 +554,7 @@ class TestAnomalyDetectionMethodSelection:
         
         health_point = {"heart_rate": 80.0}
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings = Settings()
             settings.ANOMALY_DETECTION_METHOD = "INVALID"  # This shouldn't be possible with validation, but test anyway
             settings.DISTANCE_THRESHOLD = 3.8
@@ -576,7 +575,7 @@ class TestAnomalyDetectionMethodSelection:
         health_point = {"heart_rate": 95.0, "oxygen_saturation": 94.0}
         
         # First call with DISTANCE method
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings1 = Settings()
             settings1.ANOMALY_DETECTION_METHOD = "DISTANCE"
             settings1.DISTANCE_THRESHOLD = 2.0  # Low threshold
@@ -595,7 +594,7 @@ class TestAnomalyDetectionMethodSelection:
             "feature_names": ["heart_rate", "oxygen_saturation"]
         }
         
-        with patch('src.app.services.anomaly_detector.get_settings') as mock_settings:
+        with patch('src.app.services.anomaly_detector._cache.get_settings') as mock_settings:
             settings2 = Settings()
             settings2.ANOMALY_DETECTION_METHOD = "EIF"
             settings2.EIF_THRESHOLD = 0.5
